@@ -6,74 +6,57 @@ import { DataGrid } from "@mui/x-data-grid";
 import "./table.scss";
 
 export default function ArticleTableByDisease({ userRole, userInfos }) {
+  const userToken = localStorage.getItem("userToken");
+  const apiConfig = {
+    headers: { Authorization: `Bearer ${userToken}` },
+  };
   const [diseaseName, setDiseaseName] = useState("");
   const [articles, setArticles] = useState([]);
   const [tempArticles, setTempArticles] = useState([]);
-  const [isProcessing, setIsProcessing] = useState(true);
+  const [flatData, setFlatData] = useState([]);
+  const [doctorFlatData, setDoctorFlatData] = useState([]);
   const { diseaseId } = useParams();
 
-  // get disease from DB by diseaseId
   useEffect(() => {
-    setIsProcessing(true);
-    axios
-      .get(`http://localhost:5000/disease/${diseaseId}`)
-      .then((res) => {
-        const dbdisease = res.data;
-        setDiseaseName(dbdisease.name);
-        getArticles(dbdisease);
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
-  }, [diseaseId]);
-
-  // get articles from DB by diseaseId
-  function getArticles(disease) {
-    const articleIds = disease.relatedArticles.map((article) => article.id);
-    axios
-      .post(`http://localhost:5000/article/by-ids`, { ids: articleIds })
-      .then((res) => {
-        if (res.data.length > 0) {
-          setArticles(res.data);
-        }
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
-    setIsProcessing(false);
-  }
-
-  useEffect(() => {
-    axios
-      .get(`http://localhost:5000/article-temp/`)
-      .then((res) => {
-        const articles = res.data;
-        setTempArticles(
-          articles.filter((article) => article.diseaseId === diseaseId)
+    async function fetchData() {
+      try {
+        const articleRes = await axios.get(
+          `http://localhost:5000/article/by-disease/${diseaseId}`
         );
-      })
-      .catch((err) => {
+        const tempArticleRes = await axios.get(
+          `http://localhost:5000/article-temp/by-disease/${diseaseId}`,
+          apiConfig
+        );
+        setArticles(articleRes.data);
+        setTempArticles(tempArticleRes.data);
+      } catch (err) {
         const message = `Có lỗi xảy ra: ${err}`;
         window.alert(message);
-      });
+      }
+    }
+    fetchData();
   }, [diseaseId]);
 
-  const flatData = [...tempArticles, ...articles].map((item, index) => {
-    const createInfos = item.createInfos || {};
-    return {
-      ...item,
-      doctorCreated: createInfos.doctorCreated || "",
-      doctorID: createInfos.doctorID || "",
-      timeCreated: createInfos.timeCreated || "",
-      number: index + 1,
-    };
-  });
+  useEffect(() => {
+    const flatData = [...tempArticles, ...articles].map((item, index) => {
+      const createInfos = item.createInfos || {};
+      return {
+        ...item,
+        doctorCreated: createInfos.doctorCreated || "",
+        doctorID: createInfos.doctorID || "",
+        timeCreated: createInfos.timeCreated || "",
+        number: index + 1,
+      };
+    });
+    setFlatData(flatData);
+  }, [articles, tempArticles]);
 
-  const doctorFlatData = flatData
-    .filter((item) => item.medSpecialty === userInfos.medSpecialty)
-    .map((item, index) => ({ ...item, number: index + 1 }));
+  useEffect(() => {
+    const doctorFlatData = flatData
+      .filter((item) => item.medSpecialty === userInfos.medSpecialty)
+      .map((item, index) => ({ ...item, number: index + 1 }));
+    setDoctorFlatData(doctorFlatData);
+  }, [flatData]);
 
   const actionColumn = [
     {
@@ -106,7 +89,7 @@ export default function ArticleTableByDisease({ userRole, userInfos }) {
               userInfos.doctorID === params.row.createInfos.doctorID && (
                 <NavLink
                   className="viewLink"
-                  to={`/disease/${article.diseaseId}/article-temp/${article.id}/approve`}
+                  to={`/article-temp/${article.idTemp}/approve`}
                 >
                   <div className="viewButton">Xem</div>
                 </NavLink>
@@ -114,7 +97,7 @@ export default function ArticleTableByDisease({ userRole, userInfos }) {
             {article.status !== "Approved" && userRole === "head-doctor" && (
               <NavLink
                 className="viewLink"
-                to={`/disease/${article.diseaseId}/article-temp/${article.id}/approve`}
+                to={`/article-temp/${article.idTemp}/approve`}
               >
                 <div className="viewButton">Xét duyệt</div>
               </NavLink>
@@ -138,7 +121,7 @@ export default function ArticleTableByDisease({ userRole, userInfos }) {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Danh sách bài viết
+        Danh sách bài viết về bệnh {diseaseName}
         {userRole !== "admin" && (
           <NavLink
             to={`/disease/${diseaseId}/article/create`}

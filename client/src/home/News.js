@@ -1,90 +1,105 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { NavLink } from "react-router-dom";
-import NewsIMG1 from "../assets/home/newsImg1.jpg";
-import NewsIMG2 from "../assets/home/newsImg2.jpg";
-import NewsIMG3 from "../assets/home/newsImg3.jpg";
-import NewsIMG4 from "../assets/home/newsImg4.jpg";
 
 export default function News() {
+  const [blogs, setBlogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/blog")
+      .then((res) => {
+        const blogData = res.data
+          .filter((blog) => blog.status === "Accepted")
+          .sort((a, b) => {
+            const aDate =
+              a.createdAt.split(" ")[1].split("/").reverse().join("-") +
+              "T" +
+              a.createdAt.split(" ")[0];
+            const bDate =
+              b.createdAt.split(" ")[1].split("/").reverse().join("-") +
+              "T" +
+              b.createdAt.split(" ")[0];
+            return new Date(bDate) - new Date(aDate); // sort in descending order
+          });
+        setTimeout(() => {
+          setBlogs(blogData);
+          setIsLoading(false);
+        }, 600);
+      })
+      .catch((err) => {
+        const message = err;
+        console.log(message);
+        setIsLoading(false);
+      });
+  }, []);
+
+  const mostRecentBlog = blogs[0]; // the most recent blog is the first one
+  const nextBlogs = blogs.slice(1, 4); // the second, third, and fourth most recent blogs
+
   return (
     <>
-      <section className="news w-100">
-        <div className="content-container">
-          <div className="news-wrapper">
-            <div className="news-header">Tin tức y học mới nhất</div>
-            <div className="news-section">
-              <div className="c-7 m-12">
-                <div className="news-section-left">
-                  <div className="news-left-wrapper">
-                    <NavLink className="news-link-left">
-                      <div className="img-container-left">
-                        <img
-                          className="news-img-left"
-                          src={NewsIMG1}
-                          alt="News 1"
-                        ></img>
-                      </div>
-                      <div className="news-title-left">
-                        Thoát vị đĩa đệm cột sống thắt lưng là bệnh gì? Cách
-                        phòng tránh hiệu quả
-                      </div>
-                    </NavLink>
+      {isLoading ? (
+        <div>Loading ...</div>
+      ) : (
+        <section className="news w-100">
+          <div className="content-container">
+            <div className="news-wrapper">
+              <div className="news-header">Newest blogs</div>
+              <div className="news-section">
+                <div className="c-7 m-12">
+                  <div className="news-section-left">
+                    <div className="news-left-wrapper">
+                      <NavLink
+                        className="news-link-left"
+                        to={`/blog/${mostRecentBlog.id}/view`}
+                      >
+                        <div className="img-container-left">
+                          <img
+                            className="news-img-left"
+                            src={mostRecentBlog.image}
+                            alt={mostRecentBlog.title}
+                          ></img>
+                        </div>
+                        <div className="news-title-left">
+                          {mostRecentBlog.title}
+                        </div>
+                      </NavLink>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="c-5 m-12">
-                <div className="news-section-right">
-                  <div className="news-link-wrapper">
-                    <NavLink className="news-link-right">
-                      <div className="img-container-right">
-                        <img
-                          className="news-img-right"
-                          src={NewsIMG2}
-                          alt="News 1"
-                        ></img>
+                <div className="c-5 m-12">
+                  <div className="news-section-right">
+                    {nextBlogs?.map((blog) => (
+                      <div className="news-link-wrapper" key={blog.id}>
+                        <NavLink
+                          className="news-link-right"
+                          to={`/blog/${blog.id}/view`}
+                        >
+                          <div className="img-container-right">
+                            <img
+                              className="news-img-right"
+                              src={blog.image}
+                              alt={blog.title}
+                            ></img>
+                          </div>
+                          <div className="news-title-right">{blog.title}</div>
+                        </NavLink>
                       </div>
-                      <div className="news-title-right">
-                        Giải pháp chăm sóc sức khoẻ cho cả gia đình
-                      </div>
-                    </NavLink>
-                    <NavLink className="news-link-right">
-                      <div className="img-container-right">
-                        <img
-                          className="news-img-right"
-                          src={NewsIMG3}
-                          alt="News 1"
-                        ></img>
-                      </div>
-                      <div className="news-title-right">
-                        Nâng cao công tác chăm sóc sức khỏe nhân dân trong tình
-                        hình mới
-                      </div>
-                    </NavLink>
-                    <NavLink className="news-link-right">
-                      <div className="img-container-right">
-                        <img
-                          className="news-img-right"
-                          src={NewsIMG4}
-                          alt="News 1"
-                        ></img>
-                      </div>
-                      <div className="news-title-right">
-                        Hợp tác chuyên môn nhằm nâng cao chất lượng khám, chữa
-                        bệnh của hệ thống
-                      </div>
-                    </NavLink>
-                  </div>
-                  <div className="news-btn-wrapper">
-                    <NavLink className="news-btn-link">
-                      Xem tất cả tin tức
-                    </NavLink>
+                    ))}
+                    <div className="news-btn-wrapper">
+                      <NavLink className="news-btn-link" to="/view-blog-list">
+                        Xem tất cả tin tức
+                      </NavLink>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }

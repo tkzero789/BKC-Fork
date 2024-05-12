@@ -39,7 +39,7 @@ export default function ArticlePatientView({ userRole, userInfos }) {
     const elemDetail = element.detail;
     return (
       <div>
-        <h5>{elemAbout}</h5>
+        <h5>{elemAbout}:</h5>
         <p>{elemOverview}</p>
         {element.image && (
           <img alt={element.image} src={element.image} className="w-100 p-5" />
@@ -49,7 +49,6 @@ export default function ArticlePatientView({ userRole, userInfos }) {
             {paragraph.split("\n").map((line) => (
               <p key={line.slice(0, 10)}>{line}</p>
             ))}
-            <br></br>
           </div>
         ))}
       </div>
@@ -64,11 +63,11 @@ export default function ArticlePatientView({ userRole, userInfos }) {
         <div className="content-container">
           <h3 className="text-center">{article.title}</h3>
           <div className="symp-checker-steps">
-            <h5>THÔNG TIN CĂN BỆNH</h5>
+            <h2>Thông tin căn bệnh</h2>
             {article.infos.map((info) => (
               <ArticleContent element={info} key={info.id} />
             ))}
-            <h5>PHƯƠNG PHÁP ĐIỀU TRỊ</h5>
+            <h2>Phương pháp điều trị</h2>
             {article.treatments.map((trm) => (
               <ArticleContent element={trm} key={trm.id} />
             ))}

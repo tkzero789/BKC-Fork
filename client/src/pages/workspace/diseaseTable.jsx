@@ -7,7 +7,9 @@ import "./table.scss";
 
 export default function DiseaseTable({ userRole, userInfos }) {
   const userToken = localStorage.getItem("userToken");
-  console.log(userToken);
+  const apiConfig = {
+    headers: { Authorization: `Bearer ${userToken}` },
+  };
   const [part, setPart] = useState(1);
   const [diseases, setDiseases] = useState([]);
   const [tempDiseases, setTempDiseases] = useState([]);
@@ -27,9 +29,7 @@ export default function DiseaseTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease-temp/`, {
-        headers: { Authorization: `Bearer ${userToken}` },
-      })
+      .get(`http://localhost:5000/disease-temp/`, apiConfig)
       .then((res) => {
         const tempDiseases = res.data;
         setTempDiseases(tempDiseases);
@@ -79,14 +79,14 @@ export default function DiseaseTable({ userRole, userInfos }) {
                   className="viewLink"
                   to={`/disease/${disease.id}/edit`}
                 >
-                  <div className="viewButton">Sửa</div>
+                  <div className="editButton">Sửa</div>
                 </NavLink>
               )}
             {disease.status !== "Approved" &&
               userInfos.doctorID === disease.createInfos.doctorID && (
                 <NavLink
                   className="viewLink"
-                  to={`/disease-temp/${disease.id}/approve`}
+                  to={`/disease-temp/${disease.idTemp}/approve`}
                 >
                   <div className="viewButton">Xem</div>
                 </NavLink>
@@ -94,7 +94,7 @@ export default function DiseaseTable({ userRole, userInfos }) {
             {disease.status !== "Approved" && userRole === "admin" && (
               <NavLink
                 className="viewLink"
-                to={`/disease-temp/${disease.id}/approve`}
+                to={`/disease-temp/${disease.idTemp}/approve`}
               >
                 <div className="checkButton">Xét duyệt</div>
               </NavLink>
@@ -109,17 +109,10 @@ export default function DiseaseTable({ userRole, userInfos }) {
     { field: "number", headerName: "Stt", width: 50 },
     { field: "id", headerName: "ID", width: 80 },
     { field: "name", headerName: "Tên bệnh", width: 200 },
-    {
-      field: "symptoms",
-      headerName: "Triệu chứng đi kèm",
-      width: 200,
-      valueGetter: (params) =>
-        params.value.map((symptom) => symptom.name).join(", "),
-    },
     { field: "medSpecialty", headerName: "Chuyên khoa", width: 160 },
     { field: "doctorCreated", headerName: "Người tạo", width: 180 },
     { field: "doctorID", headerName: "Mã số bác sĩ", width: 120 },
-    { field: "timeCreated", headerName: "Ngày viết", width: 120 },
+    { field: "timeCreated", headerName: "Ngày viết", width: 160 },
     { field: "status", headerName: "Tình trạng", width: 120 },
   ].concat(actionColumn);
 
@@ -128,13 +121,13 @@ export default function DiseaseTable({ userRole, userInfos }) {
       <div className="datatableTitle">
         Danh sách các căn bệnh
         {userRole === "head-doctor" && part === 1 && (
-          <button type="button" className="add-link" onClick={() => setPart(2)}>
-            Của tôi
+          <button type="button" onClick={() => setPart(2)}>
+            Căn bệnh được tạo bởi tôi
           </button>
         )}
         {userRole === "head-doctor" && part === 2 && (
-          <button type="button" className="add-link" onClick={() => setPart(1)}>
-            Quay lại
+          <button type="button" onClick={() => setPart(1)}>
+            Xem tất cả căn bệnh
           </button>
         )}
         {userRole === "head-doctor" && (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 
@@ -11,12 +11,15 @@ export default function CreateSymptom({ userRole, userInfos }) {
     headers: { Authorization: `Bearer ${userToken}` },
   };
   const now = new Date();
-  const formattedDate = `${String(now.getDate()).padStart(2, "0")}/${String(
+  const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
     now.getMonth() + 1
   ).padStart(2, "0")}/${now.getFullYear()}`;
 
   const [symptom, setSymptom] = useState({
     id: uuidv4(),
+    idTemp: uuidv4(),
     name: "",
     position: "Đầu",
     categories: [
@@ -32,10 +35,11 @@ export default function CreateSymptom({ userRole, userInfos }) {
         ],
       },
     ],
+    diseaseUsedIds: [],
     createInfos: {
       doctorCreated: userInfos.fullName,
       doctorID: userInfos.doctorID,
-      timeCreated: formattedDate,
+      timeCreated: formattedTime,
       timeEdited: null,
     },
     status: "Pending Create",
@@ -43,6 +47,29 @@ export default function CreateSymptom({ userRole, userInfos }) {
   });
 
   const navigate = useNavigate();
+
+  function confirmCancle(e) {
+    if (window.confirm("Hủy tạo và trở về")) {
+      setSymptom((prev) => ({
+        ...prev,
+        name: "",
+        categories: [
+          {
+            index: uuidv4(),
+            categoryName: "Vị trí",
+            descriptions: [
+              {
+                index: uuidv4(),
+                descriptionDetail: "",
+                descriptionImg: null,
+              },
+            ],
+          },
+        ],
+      }));
+      navigate(-1);
+    }
+  }
 
   async function confirmCreate(e) {
     if (symptom.name === "") {
@@ -61,72 +88,64 @@ export default function CreateSymptom({ userRole, userInfos }) {
         }
       }
     e.preventDefault();
-    // Create new symptom
-    console.log(symptom);
-    await axios
-      .post("http://localhost:5000/symptom-temp/add", symptom, apiConfig)
-      .then((res) => {
-        if (res.data && res.data.message === "Symptom already exists") {
-          window.alert("Căn bệnh cùng tên đang được người khác thêm vào!");
-          return;
-        }
-        console.log("Symptom created", res.data);
-        setSymptom({
-          id: uuidv4(),
-          name: "",
-          position: "Đầu",
-          categories: [
-            {
-              index: uuidv4(),
-              categoryName: "Vị trí",
-              descriptions: [
-                {
-                  index: uuidv4(),
-                  descriptionDetail: "",
-                  descriptionImg: "",
-                },
-              ],
-            },
-          ],
-          createInfos: {
-            doctorCreated: userInfos.fullName,
-            doctorID: userInfos.doctorID,
-            timeCreated: formattedDate,
-            timeEdited: null,
-          },
-          status: "Pending Create",
-          doctorReqID: userInfos.doctorID,
+    try {
+      // Create new symptom
+      await axios
+        .post("http://localhost:5000/symptom-temp/add", symptom, apiConfig)
+        .then((res) => {
+          if (res.data && res.data.message === "Symptom already exists") {
+            throw new Error(
+              "Triệu chứng cùng tên đang được người khác thêm vào!"
+            );
+          }
+          console.log("Symptom created", res.data);
         });
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
-    // Create notification to admin
-    const notif = {
-      id: uuidv4(),
-      fromInfos: {
-        name: userInfos.fullName,
-        role: userRole,
-        medSpecialty: userInfos.medSpecialty,
-        doctorID: userInfos.doctorID,
-      },
-      toDoctorID: "ADMIN",
-      content: {
-        type: "createSymptom",
-        detail: `Bác sĩ trưởng Khoa ${userInfos.medSpecialty} đã tạo căn bệnh ${symptom.name}`,
-        link: `/symptom-temp/${symptom.id}/approve`,
-      },
-      status: "Sent",
-    };
-    console.log(notif);
-    await axios
-      .post("http://localhost:5000/notification/add", notif, apiConfig)
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
-    // navigate(`/symptom-table`);
+      // Create notification to admin
+      const notif = {
+        id: uuidv4(),
+        fromInfos: {
+          name: userInfos.fullName,
+          role: userRole,
+          medSpecialty: userInfos.medSpecialty,
+          doctorID: userInfos.doctorID,
+        },
+        toDoctorID: ["ADMIN"],
+        content: {
+          type: "Tạo triệu chứng",
+          detail: `Bác sĩ trưởng Khoa ${userInfos.medSpecialty} đã tạo triệu chứng ${symptom.name}`,
+          link: `/symptom-temp/${symptom.idTemp}/approve`,
+        },
+        timeSent: formattedTime,
+        status: "Chưa xem",
+      };
+      await axios
+        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .then((res) => {
+          console.log("Notification created", res.data);
+        });
+      // Set default and navigate
+      setSymptom((prev) => ({
+        ...prev,
+        name: "",
+        categories: [
+          {
+            index: uuidv4(),
+            categoryName: "Vị trí",
+            descriptions: [
+              {
+                index: uuidv4(),
+                descriptionDetail: "",
+                descriptionImg: null,
+              },
+            ],
+          },
+        ],
+      }));
+      navigate(`/symptom-table`);
+    } catch (err) {
+      const message = `Có lỗi xảy ra: ${err}`;
+      window.alert(message);
+    }
   }
 
   return (
@@ -148,12 +167,15 @@ export default function CreateSymptom({ userRole, userInfos }) {
             </div>
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
-                <NavLink
+                <button
+                  type="button"
                   className="btn btn-outline-primary"
-                  to={`/symptom-table`}
+                  onClick={(e) => {
+                    confirmCancle(e);
+                  }}
                 >
-                  HỦY TẠO CĂN BỆNH
-                </NavLink>
+                  HỦY TẠO
+                </button>
               </div>
               <div className="col-3 d-grid gap-2">
                 <button

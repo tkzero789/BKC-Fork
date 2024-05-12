@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { useParams, NavLink } from "react-router-dom";
+import { useNavigate, useParams, NavLink } from "react-router-dom";
 import axios from "axios";
 
 import DiseaseName from "../../components/DiseaseParts/DiseaseName";
@@ -11,7 +10,8 @@ export default function ViewDisease({ userRole, userInfos }) {
     name: "",
     ageRanges: [],
     genders: [],
-    symptoms: [],
+    symptomIds: [],
+    descIds: [],
     medSpecialty: "",
     relatedArticles: [],
     createInfos: {
@@ -20,7 +20,9 @@ export default function ViewDisease({ userRole, userInfos }) {
       timeCreated: "",
       timeEdited: "",
     },
+    status: "",
   });
+  const [dbSymps, setDbSymps] = useState([]);
   const { diseaseId } = useParams();
   const navigate = useNavigate();
 
@@ -44,18 +46,31 @@ export default function ViewDisease({ userRole, userInfos }) {
       });
   }, [diseaseId, navigate]);
 
+  // get symptoms from DB
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/symptom")
+      .then((res) => {
+        setDbSymps(res.data);
+      })
+      .catch((err) => {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
+      });
+  }, []);
+
   // delete disease
-  async function onDelete(diseaseId) {
+  function confirmDelete(e) {
+    e.preventDefault();
     if (window.confirm("Bạn có chắc muốn xóa căn bệnh này?")) {
       axios
         .delete(`http://localhost:5000/disease/${diseaseId}`)
-        .then(() => {
-          navigate("/disease-table");
-        })
         .catch((err) => {
           const message = `Có lỗi xảy ra: ${err}`;
           window.alert(message);
         });
+
+      navigate("/disease-table");
     }
   }
 
@@ -69,29 +84,23 @@ export default function ViewDisease({ userRole, userInfos }) {
                 <DiseaseName
                   disease={disease}
                   setDisease={setDisease}
-                  editMode={false}
+                  dbSymps={dbSymps}
+                  mode="view"
                 />
               }
             </div>
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
-                <NavLink
+                <button
+                  type="button"
                   className="btn btn-outline-primary"
-                  to={`/disease-table`}
+                  onClick={() => {
+                    navigate(-1);
+                  }}
                 >
                   QUAY LẠI
-                </NavLink>
+                </button>
               </div>
-              {userInfos.doctorID === disease.createInfos.doctorID && (
-                <div className="col-3 d-grid gap-2">
-                  <NavLink
-                    className="btn btn-outline-primary"
-                    to={`/disease/${diseaseId}/edit`}
-                  >
-                    CHỈNH SỬA CĂN BỆNH
-                  </NavLink>
-                </div>
-              )}
               <div className="col-3 d-grid gap-2">
                 <NavLink
                   className="btn btn-outline-primary"
@@ -100,13 +109,23 @@ export default function ViewDisease({ userRole, userInfos }) {
                   DANH SÁCH BÀI VIẾT
                 </NavLink>
               </div>
+              {userInfos.doctorID === disease.createInfos.doctorID && (
+                <div className="col-3 d-grid gap-2">
+                  <NavLink
+                    className="btn btn-outline-primary"
+                    to={`/disease/${diseaseId}/edit`}
+                  >
+                    CHỈNH SỬA
+                  </NavLink>
+                </div>
+              )}
               {(userInfos.doctorID === disease.createInfos.doctorID ||
                 userRole === "admin") && (
                 <div className="col-3 d-grid gap-2">
                   <button
                     type="button"
                     className="btn btn-outline-danger"
-                    onClick={() => onDelete(diseaseId)}
+                    onClick={() => confirmDelete(diseaseId)}
                   >
                     XÓA CĂN BỆNH
                   </button>

@@ -14,8 +14,7 @@ export default function SymptomChecker() {
     age: "",
     gender: "",
     chosenSymps: [],
-    chosenCats: [],
-    chosenDes: [],
+    chosenDescs: [],
   });
   const [feedback, setFeedback] = useState({
     stars: 0,
@@ -24,11 +23,14 @@ export default function SymptomChecker() {
   });
   // get all symptoms from DB
   const [dbSymps, setDbSymps] = useState([]);
+  // filter symptoms chosen in process from dbSymps
+  const [chosenSymps, setChosenSymps] = useState([]);
   // keep patient result updated every step, contain disease objects from dbDiseases
   const [patientResult, setPatientResult] = useState([]);
   // set step and previous step in the process
   const [prevStep, setPrevStep] = useState(1);
   const [step, setStep] = useState(1);
+  const [finalStep, setFinalStep] = useState(3);
   const stepNames = [
     { number: 0, name: "Điền thông tin" },
     { number: 1, name: "Chọn triệu chứng" },
@@ -62,90 +64,14 @@ export default function SymptomChecker() {
   }, []);
 
   useEffect(() => {
-    if (prevStep === 1) {
-      let age = patientForm.age;
-      if (age !== "") {
-        if (age <= 1) {
-          age = "Dưới 1 tuổi";
-        } else if (age <= 5) {
-          age = "1 tuổi - 5 tuổi";
-        } else if (age <= 12) {
-          age = "6 tuổi - 12 tuổi";
-        } else if (age <= 16) {
-          age = "13 tuổi - 16 tuổi";
-        } else if (age <= 29) {
-          age = "17 tuổi - 29 tuổi";
-        } else if (age <= 39) {
-          age = "30 tuổi - 39 tuổi";
-        } else if (age <= 49) {
-          age = "40 tuổi - 49 tuổi";
-        } else if (age <= 64) {
-          age = "50 tuổi - 64 tuổi";
-        } else {
-          age = "Trên 65 tuổi";
-        }
-      }
-      const gender = patientForm.gender;
-      const _patientResult = patientResult.filter((disease) => {
-        return (
-          (age === "" ||
-            disease.ageRanges.includes(age) ||
-            disease.ageRanges.includes("Mọi độ tuổi")) &&
-          (gender === "" ||
-            disease.genders.includes(gender) ||
-            disease.ageRanges.includes("Cả nam và nữ"))
-        );
-      });
-      setPatientResult(_patientResult);
-    } else if (prevStep === 2) {
-      const _patientResult = patientResult.map((disease) => ({
-        ...disease,
-        sympMatched:
-          disease.symptoms.filter((symp) =>
-            patientForm.chosenSymps.includes(symp.id)
-          ).length * 5,
-      }));
-      const sortedPatientResult = _patientResult
-        .filter((disease) => disease.sympMatched > 0)
-        .sort((a, b) => b.sympMatched - a.sympMatched);
-      setPatientResult(sortedPatientResult);
-    } else if (prevStep === 3) {
-      const _patientResult = patientResult.map((disease) => {
-        const matchedScore = disease.symptoms.reduce(
-          (sum, symptom) =>
-            sum +
-            symptom.categories
-              .filter((cat) =>
-                patientForm.chosenCats.some(
-                  (chosenCat) => chosenCat.catId === cat.id
-                )
-              )
-              .flatMap((cat) => cat.descriptions)
-              .filter((des) =>
-                patientForm.chosenDes.some(
-                  (chosenDes) => chosenDes.desId === des.id
-                )
-              ).length,
-          disease.sympMatched || 0
-        );
-        return {
-          ...disease,
-          matchedScore,
-        };
-      });
-      const sortedPatientResult = _patientResult.sort(
-        (a, b) => b.matchedScore - a.matchedScore
-      );
-      setPatientResult(sortedPatientResult);
-    }
-  }, [
-    prevStep,
-    patientForm.age,
-    patientForm.gender,
-    patientForm.chosenSymps,
-    patientForm.chosenDes,
-    patientForm.chosenCats,
-  ]);
+    setChosenSymps(
+      dbSymps.filter((symptom) => patientForm.chosenSymps.includes(symptom.id))
+    );
+  }, [dbSymps, patientForm.chosenSymps]);
+
+  useEffect(() => {
+    setFinalStep(3 + chosenSymps.length);
+  }, [chosenSymps]);
 
   const StepDisplay = () => {
     if (step === 1) {
@@ -163,10 +89,10 @@ export default function SymptomChecker() {
           setPatientForm={setPatientForm}
         />
       );
-    } else if (step === 3) {
+    } else if (step > 2 && step < finalStep) {
       return (
         <PatientFormDes
-          dbSymps={dbSymps}
+          chosenSymp={chosenSymps[step - 3]}
           patientForm={patientForm}
           setPatientForm={setPatientForm}
         />
@@ -189,23 +115,96 @@ export default function SymptomChecker() {
   };
 
   const checkHandleNext = () => {
-    if (step === 2) {
-      console.log(patientForm.chosenSymps);
+    if (step === 1) {
+      if (patientForm.age === "" || patientForm.gender === "") {
+        toast.error("Hãy nhập đầy đủ tuổi và giới tính");
+        return;
+      }
+      // filter disease with suitable age and gender
+      const age =
+        patientForm.age <= 1
+          ? "Dưới 1 tuối"
+          : patientForm.age <= 5
+          ? "1 tuổi - 5 tuổi"
+          : patientForm.age <= 12
+          ? "6 tuổi - 12 tuổi"
+          : patientForm.age <= 16
+          ? "13 tuổi - 16 tuổi"
+          : patientForm.age <= 29
+          ? "17 tuổi - 29 tuổi"
+          : patientForm.age <= 39
+          ? "30 tuổi - 39 tuổi"
+          : patientForm.age <= 49
+          ? "40 tuổi - 49 tuổi"
+          : patientForm.age <= 64
+          ? "50 tuổi - 64 tuổi"
+          : "Trên 65 tuổi";
+      const gender = patientForm.gender;
+      const _patientResult = patientResult.filter((disease) => {
+        return (
+          (disease.ageRanges.includes(age) ||
+            disease.ageRanges.includes("Mọi độ tuổi")) &&
+          (disease.genders.includes(gender) ||
+            disease.genders.includes("Cả nam và nữ"))
+        );
+      });
+      setPatientResult(_patientResult);
+    } else if (step === 2) {
       if (patientForm.chosenSymps.length === 0) {
         toast.error("Hãy chọn ít nhất 1 triệu chứng");
         return;
-      } else {
-        return handleNext();
       }
-    } else if (step === 3) {
-      if (patientForm.chosenDes.length === 0) {
+      const chosenSymps = patientForm.chosenSymps;
+      const _patientResult = patientResult.map((disease) => ({
+        ...disease,
+        sympMatched:
+          disease.symptomIds.filter((id) => chosenSymps.includes(id)).length *
+          5,
+      }));
+      const sortedPatientResult = _patientResult
+        .filter((disease) => disease.sympMatched > 0)
+        .sort((a, b) => b.sympMatched - a.sympMatched);
+      setPatientResult(sortedPatientResult);
+    } else if (step > 2 && step < finalStep) {
+      if (
+        patientForm.chosenDescs.filter(
+          (desc) => desc.symptomId === chosenSymps[step - 3].id
+        ).length === 0
+      ) {
         toast.error("Hãy chọn ít nhất 1 mô tả");
         return;
-      } else {
-        return handleNext();
       }
+      const chosenDescs = patientForm.chosenDescs.map(
+        (chosenDesc) => chosenDesc.descriptionId
+      );
+      const _patientResult = patientResult.map((disease) => ({
+        ...disease,
+        desMatched: disease.descIds.filter((id) => chosenDescs.includes(id))
+          .length,
+        matchedScore:
+          disease.sympMatched +
+          disease.descIds.filter((desc) =>
+            chosenDescs.includes(desc.descriptionId)
+          ).length,
+      }));
+      console.log(_patientResult);
+      const sortedPatientResult = _patientResult.sort(
+        (a, b) => b.matchedScore - a.matchedScore
+      );
+      setPatientResult(sortedPatientResult);
+      console.log(patientForm);
     }
     handleNext();
+  };
+
+  const setDefault = () => {
+    setPatientForm({
+      age: "",
+      gender: "",
+      chosenSymps: [],
+      chosenDescs: [],
+    });
+    handlePrev();
   };
 
   const handlePrev = () => {
@@ -247,7 +246,7 @@ export default function SymptomChecker() {
         <StepName
           key={stepName.number}
           number={stepName.number}
-          currStep={step}
+          currStep={step > 2 && step < finalStep ? 3 : step}
           name={stepName.name}
         />
       );
@@ -266,27 +265,6 @@ export default function SymptomChecker() {
           <h3 className="text-center">
             CHÀO MỪNG BẠN ĐẾN VỚI TÍNH NĂNG GỢI Ý CHẨN ĐOÁN BỆNH
           </h3>
-          <div className="symp-checker-steps">
-            <h5>CÁC BƯỚC SỬ DỤNG</h5>
-            <p>Bước 1: Điền thông tin về giới tính, tuổi tác của bạn</p>
-            <p>
-              Bước 2: Chọn một hoặc nhiều triệu chứng bệnh từ danh sách có sẵn
-              hoặc từ bản đồ cơ thể
-            </p>
-            <p>
-              Bước 3: Chọn một hoặc nhiều các mô tả chi tiết của triệu chứng phù
-              hợp với tình trạng cơ thể
-            </p>
-            <p>Bước 4: Chọn căn bệnh được hệ thống chẩn đoán</p>
-            <p>Bước 5: Chọn bài viết về căn bệnh để biết thông tin chi tiết</p>
-            <p>Bước 6: Chọn phương pháp điều trị</p>
-            <h5>
-              LƯU Ý: Kết quả chỉ mang tính chất tham khảo. Để tìm hiểu chính xác
-              nhất về tình trạng của bản thân, vui lòng đến các cơ sở y tế hoặc
-              đặt lịch khám tại bệnh viện chúng tôi để được chẩn đoán chính xác
-              nhất.
-            </h5>
-          </div>
           <div className="symp-checker-board">
             <div className="card">
               <div className="progress-bar-step border rounded">
@@ -303,7 +281,7 @@ export default function SymptomChecker() {
                       disabled={step === 1}
                       onClick={() => {
                         if (step === 2) {
-                          window.location.reload();
+                          setDefault();
                         } else {
                           handlePrev();
                         }
@@ -313,7 +291,7 @@ export default function SymptomChecker() {
                     </button>
                   </div>
                   <div className="steps-next-button">
-                    {step === 4 ? (
+                    {step === finalStep ? (
                       <Link
                         type="button"
                         className="btn btn-outline-primary"
@@ -334,13 +312,17 @@ export default function SymptomChecker() {
                           type="button"
                           className="btn btn-primary"
                           disabled={
-                            step === 1 &&
-                            (!patientForm.patientAge ||
-                              !patientForm.patientGender)
+                            (step === 1 &&
+                              (!patientForm.age || !patientForm.gender)) ||
+                            (step === 2 &&
+                              patientForm.chosenSymps.length === 0) ||
+                            (step > 2 &&
+                              step < finalStep &&
+                              patientForm.chosenDescs.length === 0)
                           }
                           onClick={checkHandleNext}
                         >
-                          {step === 3 ? "Xem kết quả" : "Tiếp theo"}
+                          {step === finalStep - 1 ? "Xem kết quả" : "Tiếp theo"}
                         </button>
                       </>
                     )}

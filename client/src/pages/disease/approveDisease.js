@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { useParams, NavLink } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 
 import DiseaseName from "../../components/DiseaseParts/DiseaseName";
 
 export default function ApproveDisease({ userRole, userInfos }) {
   const userToken = localStorage.getItem("userToken");
+  const apiConfig = {
+    headers: { Authorization: `Bearer ${userToken}` },
+  };
+  const now = new Date();
+  const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
+    now.getMonth() + 1
+  ).padStart(2, "0")}/${now.getFullYear()}`;
   const [disease, setDisease] = useState({
     id: "",
+    idTemp: "",
     name: "",
     ageRanges: [],
     genders: [],
-    symptoms: [],
+    symptomIds: [],
+    descIds: [],
     medSpecialty: "",
     relatedArticles: [],
     createInfos: {
@@ -23,210 +34,203 @@ export default function ApproveDisease({ userRole, userInfos }) {
     },
     status: "",
   });
-  const [tempSymps, setTempSymps] = useState([]);
-  const { diseaseId } = useParams();
+  const [dbSymps, setDbSymps] = useState([]);
+  const { diseaseIdTemp } = useParams();
   const navigate = useNavigate();
 
-  // get disease from DB temp by diseaseId
+  // get symptoms from db
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease-temp/${diseaseId}`, {
-        headers: { Authorization: `Bearer ${userToken}` },
-      })
+      .get("http://localhost:5000/symptom")
       .then((res) => {
-        const dbdisease = res.data;
-        if (!dbdisease) {
-          window.alert(`Không tìm thấy căn bệnh với id ${diseaseId}`);
+        setDbSymps(res.data);
+      })
+      .catch((err) => {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
+      });
+  }, []);
+
+  // get disease from DB temp by diseaseIdTemp
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/disease-temp/${diseaseIdTemp}`, apiConfig)
+      .then((res) => {
+        const dbDisease = res.data;
+        if (!dbDisease) {
+          window.alert(
+            `Không tìm thấy căn bệnh trong bộ nhớ tạm, có thể bạn đã duyệt/xóa căn bệnh này`
+          );
           navigate("/disease-table");
           return;
         }
-        setDisease(dbdisease);
+        setDisease(dbDisease);
       })
       .catch((err) => {
         const message = `Có lỗi xảy ra: ${err}`;
         window.alert(message);
       });
-  }, [diseaseId, navigate]);
+  }, [diseaseIdTemp, navigate]);
 
-  // approve disease
-  async function onApprove() {
-    const symptomIds = disease.symptoms.map((symptom) => symptom.id);
-    await axios
-      .post(
-        `http://localhost:5000/symptom-temp/by-ids`,
-        {
-          ids: symptomIds,
-          diseaseId: diseaseId,
-        },
-        {
-          headers: { Authorization: `Bearer ${userToken}` },
-        }
-      )
-      .then((res) => {
-        setTempSymps(res.data);
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
-    const editedSymptoms = tempSymps
-      .filter((symp) => symp.status === "Pending Update")
-      .map((editedSymp) => ({ ...editedSymp, status: "Approved" }));
-    const newSymptoms = tempSymps
-      .filter((symp) => symp.status === "Pending Create")
-      .map((newSymp) => ({ ...newSymp, status: "Approved" }));
-    console.log(newSymptoms);
-    console.log(editedSymptoms);
-    console.log(disease);
-    return;
-    // update edited symptoms
-    const updatePromises = [];
-    if (editedSymptoms.length > 0) {
-      for (const editedSymptom of editedSymptoms) {
-        updatePromises.push(
-          axios
-            .post(
-              `http://localhost:5000/symptom/update-from-disease/${editedSymptom.id}`,
-              editedSymptom,
-              {
-                headers: { Authorization: `Bearer ${userToken}` },
-              }
-            )
-            .then((res) => {
-              console.log("Symptom edited", res.data);
-            })
-            .catch((err) => {
-              const message = `Có lỗi xảy ra: ${err}`;
-              window.alert(message);
-            })
-        );
-      }
-    }
-    // create new symptoms from disease
-    const createPromises = [];
-    if (newSymptoms.length > 0) {
-      for (const newSymptom of newSymptoms) {
-        createPromises.push(
-          axios
-            .post("http://localhost:5000/symptom/add", newSymptom, {
-              headers: { Authorization: `Bearer ${userToken}` },
-            })
-            .then((res) => {
-              if (res.data && res.data.message === "Symptom already exists") {
-                window.alert("Triệu chứng đã tồn tại!");
-              } else {
-                console.log("Symptom created", res.data);
-              }
-            })
-            .catch((err) => {
-              const message = `Có lỗi xảy ra: ${err}`;
-              window.alert(message);
-            })
-        );
-      }
-    }
-    // create new disease
+  async function confirmApprove(e) {
+    e.preventDefault();
     if (disease.status === "Pending Create") {
-    }
-    const _disease = { ...disease, status: "Approved" };
-    try {
-      await Promise.all([...updatePromises, ...createPromises]);
-      if (disease.status === "Pending Create") {
-        const response = await axios.post(
-          "http://localhost:5000/disease/add",
-          _disease,
-          {
-            headers: { Authorization: `Bearer ${userToken}` },
-          }
-        );
-        if (
-          response.data &&
-          response.data.message === "Disease already exists"
-        ) {
-          window.alert("Căn bệnh đã tồn tại!");
-        } else {
-          console.log("Căn bệnh đã được thêm vào", response.data);
-          setDisease({
-            id: "",
-            name: "",
-            ageRanges: [],
-            genders: [],
-            symptoms: [],
-            medSpecialty: "",
-            relatedArticles: [],
-            createInfos: {
-              doctorCreated: "",
-              doctorId: "",
-              timeCreated: "",
-              timeEdited: "",
-            },
-            status: "",
-          });
-        }
-      } else if (disease.status === "Pending Update") {
-        const response = await axios.post(
-          `http://localhost:5000/disease/update/${diseaseId}`,
-          _disease,
-          {
-            headers: { Authorization: `Bearer ${userToken}` },
-          }
-        );
-        console.log("Căn bệnh đã được cập nhật", response.data);
-        setDisease({
-          id: "",
-          name: "",
-          ageRanges: [],
-          genders: [],
-          symptoms: [],
-          medSpecialty: "",
-          relatedArticles: [],
-          createInfos: {
-            doctorCreated: "",
-            doctorId: "",
-            timeCreated: "",
-            timeEdited: "",
-          },
-          status: "",
-        });
-      }
-    } catch (err) {
-      console.error("Error during symptom updates/creations:", err);
-      window.alert("Có lỗi xảy ra khi cập nhật/tạo triệu chứng!");
-    }
-    onDelete();
-  }
-
-  // delete disease
-  async function onDelete() {
-    if (
-      window.confirm("Bạn có chắc muốn xóa căn bệnh này ở bộ nhớ tạm thời?")
-    ) {
-      axios
-        .delete(`http://localhost:5000/disease-temp/${diseaseId}`, {
-          headers: { Authorization: `Bearer ${userToken}` },
-        })
-        .catch((err) => {
-          const message = `Có lỗi xảy ra: ${err}`;
-          window.alert(message);
-        });
-      for (const symptom of disease.symptoms) {
-        axios
-          .delete(
-            `http://localhost:5000/symptom-temp/${symptom.id}/${diseaseId}`,
-            {
-              headers: { Authorization: `Bearer ${userToken}` },
-            }
+      try {
+        // Create disease
+        await axios
+          .post(
+            `http://localhost:5000/disease/add/`,
+            { ...disease, status: "Approved" },
+            apiConfig
           )
           .then((res) => {
-            console.log("Symptom deleted in temp", res.data);
-            navigate("/disease-table");
-          })
-          .catch((err) => {
-            const message = `Có lỗi xảy ra: ${err}`;
-            window.alert(message);
+            if (res.data && res.data.message === "Disease already exists") {
+              throw new Error("Căn bệnh cùng tên đã có trong cơ sở dữ liệu!");
+            }
+            console.log("Disease created", res.data);
           });
+        // Create new notification
+        const resIds = await axios.post(
+          `http://localhost:5000/user/medspec-doctor-ids`,
+          { medSpecialty: disease.medSpecialty }
+        );
+        const doctorIds = resIds.data;
+        const notif = {
+          id: uuidv4(),
+          fromInfos: {
+            name: userInfos.fullName,
+            role: userRole,
+            medSpecialty: userInfos.medSpecialty,
+            doctorID: userInfos.doctorID,
+          },
+          toDoctorID: doctorIds,
+          content: {
+            type: "Duyệt tạo căn bệnh",
+            detail: `Admin đã duyệt căn bệnh ${disease.name} do bác sĩ ${disease.createInfos.doctorCreated} tạo`,
+            link: `/disease/${disease.id}/view`,
+          },
+          timeSent: formattedTime,
+          status: "Chưa xem",
+        };
+        await axios
+          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .then((res) => {
+            console.log("Notification created", res.data);
+          });
+        confirmDelete(e, true);
+      } catch (err) {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
+      }
+    } else if (disease.status === "Pending Update") {
+      try {
+        // Update disease
+        await axios.post(
+          `http://localhost:5000/disease/update/${disease.id}`,
+          { ...disease, status: "Approved" },
+          apiConfig
+        );
+        // Create notification
+        const resIds = await axios.get(
+          `http://localhost:5000/user/medspec-doctor-ids`,
+          { medSpecialty: disease.medSpecialty }
+        );
+        const doctorIds = resIds.data;
+        const notif = {
+          id: uuidv4(),
+          fromInfos: {
+            name: userInfos.fullName,
+            role: userRole,
+            medSpecialty: userInfos.medSpecialty,
+            doctorID: userInfos.doctorID,
+          },
+          toDoctorID: doctorIds,
+          content: {
+            type: "Duyệt chỉnh sửa căn bệnh",
+            detail: `Admin đã duyệt chỉnh sửa căn bệnh ${disease.name}`,
+            link: `/disease/${disease.id}/view`,
+          },
+          timeSent: formattedTime,
+          status: "Chưa xem",
+        };
+        await axios
+          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .then((res) => {
+            console.log("Notification created", res.data);
+          });
+        confirmDelete(e, true);
+      } catch (err) {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
       }
     }
+  }
+
+  async function confirmDelete(e, approved) {
+    e.preventDefault();
+    console.log(approved);
+    if (approved) {
+      try {
+        axios.delete(
+          `http://localhost:5000/disease-temp/${diseaseIdTemp}`,
+          apiConfig
+        );
+      } catch (err) {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
+      }
+    } else {
+      if (window.confirm("Xóa căn bệnh này trong bộ nhớ tạm thời?")) {
+        try {
+          axios.delete(
+            `http://localhost:5000/disease-temp/${diseaseIdTemp}`,
+            apiConfig
+          );
+          const notif = {
+            id: uuidv4(),
+            fromInfos: {
+              name: userInfos.fullName,
+              role: userRole,
+              medSpecialty: userInfos.medSpecialty,
+              doctorID: userInfos.doctorID,
+            },
+            toDoctorID: [disease.doctorReqID],
+            content: {
+              type:
+                disease.status === "Pending Create"
+                  ? "Không duyệt tạo căn bệnh"
+                  : "Không duyệt chỉnh sửa căn bệnh",
+              detail:
+                disease.status === "Pending Create"
+                  ? `Admin không duyệt tạo căn bệnh ${disease.name}`
+                  : `Admin không duyệt chỉnh sửa căn bệnh ${disease.name}`,
+              link: "",
+            },
+            timeSent: formattedTime,
+            status: "Chưa xem",
+          };
+          await axios
+            .post("http://localhost:5000/notification/add", notif, apiConfig)
+            .then((res) => {
+              console.log("Notification created", res.data);
+            });
+        } catch (err) {
+          const message = `Có lỗi xảy ra: ${err}`;
+          window.alert(message);
+        }
+      } else return;
+    }
+
+    // Set default and navigate
+    setDisease((prev) => ({
+      ...prev,
+      name: "",
+      ageRanges: [],
+      genders: [],
+      symptomIds: [],
+      descIds: [],
+    }));
+    navigate(`/disease-table`);
   }
 
   return (
@@ -239,27 +243,33 @@ export default function ApproveDisease({ userRole, userInfos }) {
                 <DiseaseName
                   disease={disease}
                   setDisease={setDisease}
-                  editMode={false}
+                  dbSymps={dbSymps}
+                  mode="view"
                 />
               }
             </div>
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
-                <NavLink
+                <button
+                  type="button"
                   className="btn btn-outline-primary"
-                  to={`/disease-table`}
+                  onClick={() => {
+                    navigate(-1);
+                  }}
                 >
                   QUAY LẠI
-                </NavLink>
+                </button>
               </div>
               {userRole === "admin" && (
                 <div className="col-3 d-grid gap-2">
                   <button
                     type="button"
                     className="btn btn-outline-primary"
-                    onClick={() => onApprove()}
+                    onClick={(e) => {
+                      confirmApprove(e);
+                    }}
                   >
-                    DUYỆT CĂN BỆNH
+                    XÁC NHẬN DUYỆT
                   </button>
                 </div>
               )}
@@ -269,9 +279,11 @@ export default function ApproveDisease({ userRole, userInfos }) {
                   <button
                     type="button"
                     className="btn btn-outline-danger"
-                    onClick={() => onDelete()}
+                    onClick={(e) => {
+                      confirmDelete(e, false);
+                    }}
                   >
-                    XÓA CĂN BỆNH
+                    XÁC NHẬN XÓA
                   </button>
                 </div>
               )}

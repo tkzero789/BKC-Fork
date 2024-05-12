@@ -26,6 +26,51 @@ userRoutes.route("/user/:id").get(async function (req, res) {
   }
 });
 
+userRoutes.route("/user/doctor-ids").get(async function (req, res) {
+  try {
+    const db_connect = await dbo.getDb("mern_hospital");
+    const result = await db_connect.collection("users").find({}).toArray();
+    const doctorIds = result
+      .map((user) => user.userInfos.doctorID)
+      .filter((doctorID) => doctorID !== null && doctorID !== "ADMIN");
+    res.json(doctorIds);
+  } catch (err) {
+    throw err;
+  }
+});
+
+userRoutes.route("/user/medspec-doctor-ids").post(async function (req, res) {
+  try {
+    const db_connect = await dbo.getDb("mern_hospital");
+    const result = await db_connect
+      .collection("users")
+      .find({ "userInfos.medSpecialty": req.body.medSpecialty })
+      .toArray();
+    const doctorIds = result.map((user) => user.userInfos.doctorID);
+    res.json(doctorIds);
+  } catch (err) {
+    throw err;
+  }
+});
+
+userRoutes.route("/user/medspec-hdoctor-id").post(async function (req, res) {
+  try {
+    console.log(req.body.medSpecialty);
+    const db_connect = await dbo.getDb("mern_hospital");
+    const result = await db_connect.collection("users").findOne({
+      "userInfos.medSpecialty": req.body.medSpecialty,
+      role: "head-doctor",
+    });
+    console.log(result);
+    if (result) {
+      const id = result.userInfos.doctorID;
+      res.json(id);
+    } else return res.status(404).json({ message: "ID not found" });
+  } catch (err) {
+    throw err;
+  }
+});
+
 userRoutes.route("/user/update/:id").post(async function (req, res) {
   try {
     const db_connect = await dbo.getDb("mern_hospital");

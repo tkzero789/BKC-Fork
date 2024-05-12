@@ -1,17 +1,12 @@
 import React from "react";
 
-const PatientFormAgeGen = ({ patientForm, setPatientForm }) => {
-  const updateAgeField = (event) => {
-    let _patientForm = { ...patientForm };
-    _patientForm[event.target.name] = event.target.value;
-    setPatientForm(_patientForm);
-  };
-
-  const updateGenField = (event) => {
-    let _patientForm = { ...patientForm };
-    _patientForm[event.target.name] = event.target.value;
-    setPatientForm(_patientForm);
-  };
+export default function PatientFormAgeGen({ patientForm, setPatientForm }) {
+  function updateField(event) {
+    setPatientForm({
+      ...patientForm,
+      [event.target.name]: event.target.value,
+    });
+  }
 
   return (
     <div>
@@ -27,10 +22,10 @@ const PatientFormAgeGen = ({ patientForm, setPatientForm }) => {
             <input
               type="number"
               className="form-control fw-reg"
-              name="patientAge"
+              name="age"
               placeholder="Nhập độ tuổi"
-              value={patientForm.patientAge}
-              onChange={(e) => updateAgeField(e)}
+              value={patientForm.age}
+              onChange={(e) => updateField(e)}
             />
           </div>
         </div>
@@ -38,10 +33,10 @@ const PatientFormAgeGen = ({ patientForm, setPatientForm }) => {
           <h5 className="fw-med text-blue-2">Giới tính</h5>
           <div className="select-gender">
             <select
-              name="patientGender"
-              value={patientForm.patientGender}
+              name="gender"
+              value={patientForm.gender}
               className="form-select fw-reg"
-              onChange={(e) => updateGenField(e)}
+              onChange={(e) => updateField(e)}
             >
               <option value="">Chọn giới tính</option>
               <option value="Nam">Nam</option>
@@ -52,6 +47,4 @@ const PatientFormAgeGen = ({ patientForm, setPatientForm }) => {
       </div>
     </div>
   );
-};
-
-export default PatientFormAgeGen;
+}

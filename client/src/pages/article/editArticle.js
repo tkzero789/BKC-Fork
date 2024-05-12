@@ -1,33 +1,61 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { useParams, NavLink } from "react-router-dom";
-import axios from "axios";
+import { useNavigate, useParams, NavLink } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 import ArticleForm from "../../components/ArticleParts/ArticleForm";
 
-export default function EditArticle({ userInfos }) {
+export default function EditArticle({ userRole, userInfos }) {
+  const userToken = localStorage.getItem("userToken");
+  const apiConfig = {
+    headers: { Authorization: `Bearer ${userToken}` },
+  };
   const now = new Date();
-  const formattedDate = `${String(now.getDate()).padStart(2, "0")}/${String(
+  const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
     now.getMonth() + 1
   ).padStart(2, "0")}/${now.getFullYear()}`;
 
+  const [origTitle, setOrigTitle] = useState("");
+  const { diseaseId, articleId } = useParams();
+  const navigate = useNavigate();
+
   const [article, setArticle] = useState({
-    id: uuidv4(),
+    id: "",
     title: "",
     diseaseId: "",
     diseaseName: "",
-    infos: [],
-    treatments: [],
+    infos: [
+      {
+        id: uuidv4(),
+        number: 1,
+        about: "",
+        overview: "",
+        detail: "",
+        image: null,
+      },
+    ],
+    treatments: [
+      {
+        id: uuidv4(),
+        number: 1,
+        about: "",
+        overview: "",
+        detail: "",
+        image: null,
+      },
+    ],
+    medSpecialty: "",
     createInfos: {
       doctorCreated: "",
-      doctorID: "",
+      doctorId: "",
       timeCreated: "",
-      timeEdited: null,
+      timeEdited: "",
     },
+    isDisplay: false,
+    status: "",
   });
-  const { diseaseId, articleId } = useParams();
-  const navigate = useNavigate();
 
   // get article by articleId
   useEffect(() => {
@@ -37,21 +65,25 @@ export default function EditArticle({ userInfos }) {
         const dbArticle = res.data;
         if (!dbArticle) {
           window.alert(`Không tìm thấy bài viết với id ${articleId} `);
-          navigate("/disease-table");
+          navigate(-1);
           return;
         }
         if (dbArticle.createInfos.doctorID !== userInfos.doctorID) {
           window.alert("Chỉ có bác sĩ tạo ra mới được chỉnh sửa dữ liệu");
-          navigate("/disease-table");
+          navigate(-1);
           return;
         }
         setArticle({
           ...dbArticle,
+          idTemp: uuidv4(),
           createInfos: {
             ...dbArticle.createInfos,
-            timeEdited: formattedDate,
+            timeEdited: formattedTime,
           },
+          status: "Pending Update",
+          doctorReqID: userInfos.doctorID,
         });
+        setOrigTitle(dbArticle.title);
       })
       .catch((err) => {
         const message = `Có lỗi xảy ra: ${err}`;
@@ -59,64 +91,103 @@ export default function EditArticle({ userInfos }) {
       });
   }, [articleId, navigate]);
 
-  // handle edit article
+  function confirmCancle(e) {
+    if (window.confirm("Hủy và trở về trạng thái xem?")) {
+      setArticle((prev) => ({
+        ...prev,
+        title: "",
+        infos: [],
+        treatments: [],
+      }));
+      navigate(-1);
+    }
+  }
+
   async function confirmEdit(e) {
+    e.preventDefault();
     // validation fields
     if (article.title === "") {
       alert("Thiếu tên bài viết");
-    } else if (article.infos.filter((info) => info.detail === "").length > 0) {
-      alert("Thiếu thông tin bệnh");
+      return;
     } else if (
-      article.treatments.filter((trm) => trm.detail === "").length > 0
+      article.infos.filter(
+        (info) =>
+          info.about === "" || info.overview === "" || info.detail === ""
+      ).length > 0
+    ) {
+      alert("Thiếu thông tin bệnh");
+      return;
+    } else if (
+      article.treatments.filter(
+        (trm) => trm.about === "" || trm.overview === "" || trm.detail === ""
+      ).length > 0
     ) {
       alert("Thiếu phương pháp chữa trị");
+      return;
     } else {
-      e.preventDefault();
-      // update article
-      const _article = { ...article };
-      axios
-        .post(`http://localhost:5000/article/update/${articleId}`, _article)
-        .then((res) => {
-          console.log("Article edited:", res.data);
-          setArticle({
-            id: "",
-            title: "",
-            diseaseId: "",
-            diseaseName: "",
-            infos: [],
-            treatments: [],
-            createInfos: {
-              doctorCreated: "",
-              doctorID: "",
-              timeCreated: "",
-              timeEdited: null,
-            },
+      try {
+        if (origTitle !== article.title) {
+          await axios
+            .get(`http://localhost:5000/article/${article.title}`)
+            .then((res) => {
+              if (res.data) {
+                throw new Error(
+                  "Bài viết cùng tiêu đề đã có sẵn trong cơ sở dữ liệu!"
+                );
+              }
+            });
+        }
+        // Edit article
+        axios
+          .post(`http://localhost:5000/article-temp/add/`, article, apiConfig)
+          .then((res) => {
+            if (res.data && res.data.message === "Article already exists") {
+              throw new Error(
+                "Bạn đã chỉnh sửa bài viết này, vui lòng đợi admin xét duyệt!"
+              );
+            }
+            console.log("Article edited", res.data);
           });
-        })
-        .catch((err) => {
-          const message = `Có lỗi xảy ra: ${err}`;
-          window.alert(message);
-        });
-      // update disease article
-      const newArtShort = {
-        id: _article.id,
-        title: _article.title,
-        doctorID: _article.createInfos.doctorID,
-      };
-      console.log(newArtShort);
-      axios
-        .post(
-          `http://localhost:5000/disease/${diseaseId}/update-article/${articleId}`,
-          newArtShort
-        )
-        .then((res) => {
-          console.log("Disease relatedArticle Edited:", res.data);
-          navigate(`/disease/${diseaseId}/article/${articleId}/view`);
-        })
-        .catch((err) => {
-          const message = `Có lỗi xảy ra: ${err}`;
-          window.alert(message);
-        });
+        // Create notification to head-doctor
+        const resId = await axios.post(
+          `http://localhost:5000/user/medspec-hdoctor-id`,
+          { medSpecialty: userInfos.medSpecialty }
+        );
+        const hdoctorID = resId.data;
+        const notif = {
+          id: uuidv4(),
+          fromInfos: {
+            name: userInfos.fullName,
+            role: userRole,
+            medSpecialty: userInfos.medSpecialty,
+            doctorID: userInfos.doctorID,
+          },
+          toDoctorID: [hdoctorID],
+          content: {
+            type: "Chỉnh sửa bài viết",
+            detail: `Bác sĩ ${userInfos.fullName} đã chỉnh sửa bài viết ${article.title}`,
+            link: `/article-temp/${article.idTemp}/approve`,
+          },
+          timeSent: formattedTime,
+          status: "Chưa xem",
+        };
+        await axios
+          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .then((res) => {
+            console.log("Notification created", res.data);
+          });
+
+        setArticle((prev) => ({
+          ...prev,
+          title: "",
+          infos: [],
+          treatments: [],
+        }));
+        navigate(`/disease/${diseaseId}/article-table`);
+      } catch (err) {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
+      }
     }
   }
 
@@ -133,18 +204,19 @@ export default function EditArticle({ userInfos }) {
                 <ArticleForm
                   article={article}
                   setArticle={setArticle}
-                  editMode={true}
+                  mode="edit"
                 />
               }
             </div>
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
-                <NavLink
+                <button
+                  type="button"
                   className="btn btn-outline-primary"
-                  to={`/disease/${diseaseId}/article/${articleId}/view`}
+                  onClick={(e) => confirmCancle(e)}
                 >
-                  TRỞ VỀ CHẾ ĐỘ XEM
-                </NavLink>
+                  HỦY CHỈNH SỬA
+                </button>
               </div>
               <div className="col-3 d-grid gap-2">
                 <button

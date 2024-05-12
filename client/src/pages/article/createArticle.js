@@ -1,35 +1,64 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { useParams, NavLink } from "react-router-dom";
+import { useNavigate, useParams, NavLink } from "react-router-dom";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import ArticleForm from "../../components/ArticleParts/ArticleForm";
+import ArticlePatView from "../../components/ArticleParts/ArticlePatView";
 
-export default function CreateArticle({ userInfos }) {
+export default function CreateArticle({ userRole, userInfos }) {
+  const userToken = localStorage.getItem("userToken");
+  const apiConfig = {
+    headers: { Authorization: `Bearer ${userToken}` },
+  };
+
   const now = new Date();
-  const formattedDate = `${String(now.getDate()).padStart(2, "0")}/${String(
+  const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
     now.getMonth() + 1
   ).padStart(2, "0")}/${now.getFullYear()}`;
 
+  const [isPatView, setIsPatView] = useState(false);
   const [article, setArticle] = useState({
     id: uuidv4(),
+    idTemp: uuidv4(),
     title: "",
     diseaseId: "",
     diseaseName: "",
-    infos: [],
-    treatments: [],
-    medSpecialty: "",
+    infos: [
+      {
+        id: uuidv4(),
+        number: 1,
+        about: "",
+        overview: "",
+        detail: "",
+        image: null,
+      },
+    ],
+    treatments: [
+      {
+        id: uuidv4(),
+        number: 1,
+        about: "",
+        overview: "",
+        detail: "",
+        image: null,
+      },
+    ],
+    medSpecialty: userInfos.medSpecialty,
     createInfos: {
       doctorCreated: userInfos.fullName,
       doctorID: userInfos.doctorID,
-      timeCreated: formattedDate,
+      timeCreated: formattedTime,
       timeEdited: null,
     },
     isDisplay: false,
     status: "Pending Create",
+    doctorReqID: userInfos.doctorID,
   });
+
   const { diseaseId } = useParams();
   const navigate = useNavigate();
 
@@ -42,7 +71,6 @@ export default function CreateArticle({ userInfos }) {
           ...article,
           diseaseId: disease.id,
           diseaseName: disease.name,
-          medSpecialty: userInfos.medSpecialty,
         });
       })
       .catch((err) => {
@@ -51,102 +79,150 @@ export default function CreateArticle({ userInfos }) {
       });
   }, [diseaseId]);
 
+  function confirmCancle(e) {
+    if (window.confirm("Hủy tạo và trở về?")) {
+      setArticle((prev) => ({
+        ...prev,
+        title: "",
+        infos: [],
+        treatments: [],
+      }));
+      navigate(-1);
+    }
+  }
+
   async function confirmCreate(e) {
+    e.preventDefault();
     // validation fields
     if (article.title === "") {
       alert("Thiếu tên bài viết");
       return;
     } else if (
-      article.infos.filter((info) => info.about === "" || info.detail === "")
-        .length > 0
+      article.infos.filter(
+        (info) =>
+          info.about === "" || info.overview === "" || info.detail === ""
+      ).length > 0
     ) {
       alert("Thiếu thông tin bệnh");
       return;
     } else if (
       article.treatments.filter(
-        (treatment) => treatment.about === "" || treatment.detail === ""
+        (trm) => trm.about === "" || trm.overview === "" || trm.detail === ""
       ).length > 0
     ) {
       alert("Thiếu phương pháp chữa trị");
       return;
     } else {
-      e.preventDefault();
-      // create new article in temp
-      const newArticle = { ...article };
-      axios
-        .post("http://localhost:5000/article-temp/add", newArticle)
-        .then((res) => {
-          if (res.data && res.data.message === "Article already exists") {
-            window.alert("Bài viết cùng tên cho bệnh này đang được chờ duyệt!");
-          } else {
+      try {
+        // Create new article
+        await axios
+          .post("http://localhost:5000/article-temp/add", article, apiConfig)
+          .then((res) => {
+            if (res.data && res.data.message === "Article already exists") {
+              throw new Error(
+                "Bài viết cùng tên cho bệnh này đang được người khác thêm vào!"
+              );
+            }
             console.log("Article created:", res.data);
-            setArticle({
-              id: uuidv4(),
-              title: "",
-              diseaseId: "",
-              diseaseName: "",
-              infos: [],
-              treatments: [],
-              medSpecialty: "",
-              createInfos: {
-                doctorCreated: userInfos.fullName,
-                doctorID: userInfos.doctorID,
-                timeCreated: formattedDate,
-                timeEdited: null,
-              },
-              isDisplay: false,
-              status: "Pending Create",
-            });
-            navigate(`/disease/${diseaseId}/article-table`);
-          }
-        })
-        .catch((err) => {
-          const message = `Có lỗi xảy ra: ${err}`;
-          window.alert(message);
-        });
+          });
+        // Create notification to head-doctor
+        const resId = await axios.post(
+          `http://localhost:5000/user/medspec-hdoctor-id`,
+          { medSpecialty: userInfos.medSpecialty }
+        );
+        const hdoctorID = resId.data;
+        const notif = {
+          id: uuidv4(),
+          fromInfos: {
+            name: userInfos.fullName,
+            role: userRole,
+            medSpecialty: userInfos.medSpecialty,
+            doctorID: userInfos.doctorID,
+          },
+          toDoctorID: [hdoctorID],
+          content: {
+            type: "Tạo bài viết",
+            detail: `Bác sĩ ${userInfos.fullName} đã tạo bài viết ${article.title}`,
+            link: `/article-temp/${article.idTemp}/approve`,
+          },
+          timeSent: formattedTime,
+          status: "Chưa xem",
+        };
+        await axios
+          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .then((res) => {
+            console.log("Notification created", res.data);
+          });
+      } catch (err) {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
+      }
+      setArticle((prev) => ({
+        ...prev,
+        title: "",
+        infos: [],
+        treatments: [],
+      }));
+      navigate(`/disease/${diseaseId}/article-table`);
     }
   }
 
   return (
     <div>
-      <h3 className="container text-center text-body pt-5">TẠO BÀI VIẾT</h3>
-      <div className="container p-5">
-        <div className="card border-primary-subtle p-5">
-          <form>
-            <div>
-              {
-                <ArticleForm
-                  article={article}
-                  setArticle={setArticle}
-                  editMode={true}
-                />
-              }
-            </div>
+      {isPatView ? (
+        ArticlePatView({ article, setIsPatView })
+      ) : (
+        <div>
+          <h3 className="container text-center text-body pt-5">TẠO BÀI VIẾT</h3>
+          <div className="container p-5">
+            <div className="card border-primary-subtle p-5">
+              <form>
+                <div>
+                  {
+                    <ArticleForm
+                      article={article}
+                      setArticle={setArticle}
+                      mode="create"
+                    />
+                  }
+                </div>
 
-            <div className="row pt-3 pb-3 justify-content-end">
-              <div className="col-3 d-grid gap-2">
-                <NavLink
-                  className="btn btn-outline-primary"
-                  to={`/disease/${diseaseId}/article-table`}
-                >
-                  HỦY TẠO BÀI VIẾT
-                </NavLink>
-              </div>
-              <div className="col-3 d-grid gap-2">
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  onClick={(e) => {
-                    confirmCreate(e);
-                  }}
-                >
-                  XÁC NHẬN TẠO
-                </button>
-              </div>
+                <div className="row pt-3 pb-3 justify-content-end">
+                  <div className="col-3 d-grid gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={(e) => confirmCancle(e)}
+                    >
+                      HỦY TẠO
+                    </button>
+                  </div>
+                  <div className="col-3 d-grid gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={() => setIsPatView(true)}
+                    >
+                      XEM CHẾ ĐỘ NGƯỜI DÙNG
+                    </button>
+                  </div>
+                  <div className="col-3 d-grid gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={(e) => {
+                        confirmCreate(e);
+                      }}
+                    >
+                      XÁC NHẬN TẠO
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -86,7 +86,7 @@ symptomRoutes.route("/symptom/:id").get(async function (req, res) {
   }
 });
 
-// get symptom by name
+// get symptom by name (check duplicate)
 symptomRoutes.route("/symptom/:name").get(async function (req, res) {
   try {
     const db_connect = await dbo.getDb("mern_hospital");
@@ -98,7 +98,7 @@ symptomRoutes.route("/symptom/:name").get(async function (req, res) {
   }
 });
 
-// add whole new symptom
+// add new symptom
 symptomRoutes
   .route("/symptom/add")
   .post(verifyJWT, isAdmin, async function (req, res) {
@@ -115,11 +115,12 @@ symptomRoutes
           name: req.body.name,
           position: req.body.position,
           categories: req.body.categories,
+          diseaseUsedIds: reqSymptom.diseaseUsedIds,
           createInfos: req.body.createInfos,
-          status: "Approved",
+          status: req.body.status,
         };
         const result = await db_connect.collection("symptoms").insertOne(myobj);
-        res.json(result);
+        res.json({ result, myobj });
       }
     } catch (err) {
       throw err;
@@ -139,13 +140,13 @@ symptomRoutes
           position: req.body.position,
           categories: req.body.categories,
           createInfos: req.body.createInfos,
-          status: "Approved",
+          status: req.body.status,
         },
       };
       const result = await db_connect
         .collection("symptoms")
         .updateOne(myquery, newvalues);
-      res.json(result);
+      res.json({ result, newvalues });
     } catch (err) {
       throw err;
     }
@@ -227,13 +228,13 @@ symptomRoutes
     }
   });
 
-//get symptom by id in temp
+//get symptom by idTemp in temp
 symptomRoutes
-  .route("/symptom-temp/:id")
+  .route("/symptom-temp/:idTemp")
   .get(verifyJWT, isStaff, async function (req, res) {
     try {
       const db_connect = await dbo.getDb("mern_hospital");
-      const myquery = { id: req.params.id };
+      const myquery = { idTemp: req.params.idTemp };
       const result = await db_connect
         .collection("symptoms-temp")
         .findOne(myquery);
@@ -259,7 +260,7 @@ symptomRoutes
     }
   });
 
-// add whole new symptom temporily
+// add new symptom to temp
 symptomRoutes
   .route("/symptom-temp/add")
   .post(verifyJWT, isHeadDoctor, async function (req, res) {
@@ -277,9 +278,11 @@ symptomRoutes
       }
       const myobj = {
         id: reqSymptom.id,
+        idTemp: reqSymptom.idTemp,
         name: reqSymptom.name,
         position: reqSymptom.position,
         categories: reqSymptom.categories,
+        diseaseUsedIds: reqSymptom.diseaseUsedIds,
         createInfos: reqSymptom.createInfos,
         status: reqSymptom.status,
         doctorReqID: reqSymptom.doctorReqID,
@@ -287,7 +290,7 @@ symptomRoutes
       const result = await db_connect
         .collection("symptoms-temp")
         .insertOne(myobj);
-      res.json(result);
+      res.json({ result, myobj });
     } catch (err) {
       throw err;
     }
@@ -295,12 +298,12 @@ symptomRoutes
 
 // delete symptom by id in temp
 symptomRoutes
-  .route("/symptom-temp/:symptomId")
+  .route("/symptom-temp/:idTemp")
   .delete(verifyJWT, isHDrOrAdmin, async function (req, res) {
     try {
       const db_connect = await dbo.getDb("mern_hospital");
       const myquery = {
-        id: req.params.symptomId,
+        idTemp: req.params.idTemp,
         diseaseId: req.params.diseaseId,
       };
       const result = await db_connect

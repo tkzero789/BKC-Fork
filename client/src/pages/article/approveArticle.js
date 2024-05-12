@@ -1,38 +1,75 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { useParams, NavLink } from "react-router-dom";
+import { useNavigate, useParams, NavLink } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 
 import ArticleForm from "../../components/ArticleParts/ArticleForm";
+import ArticlePatView from "../../components/ArticleParts/ArticlePatView";
 
-export default function ViewArticleTemp({ userRole, userInfos }) {
+export default function ApproveArticle({ userRole, userInfos }) {
+  const userToken = localStorage.getItem("userToken");
+  const apiConfig = {
+    headers: { Authorization: `Bearer ${userToken}` },
+  };
+
+  const now = new Date();
+  const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
+    now.getMonth() + 1
+  ).padStart(2, "0")}/${now.getFullYear()}`;
+
+  const [isPatView, setIsPatView] = useState(false);
   const [article, setArticle] = useState({
     id: "",
+    idTemp: "",
     title: "",
     diseaseId: "",
     diseaseName: "",
-    infos: [],
-    treatments: [],
+    infos: [
+      {
+        id: "",
+        number: 1,
+        about: "",
+        overview: "",
+        detail: "",
+        image: null,
+      },
+    ],
+    treatments: [
+      {
+        id: "",
+        number: 1,
+        about: "",
+        overview: "",
+        detail: "",
+        image: null,
+      },
+    ],
+    medSpecialty: "",
     createInfos: {
       doctorCreated: "",
-      doctorID: "",
+      doctorId: "",
       timeCreated: "",
       timeEdited: "",
     },
-    isDisplay: false,
+    isDisplay: "",
     status: "",
+    doctorReqID: "",
   });
-  const { diseaseId, articleId } = useParams();
+  const { articleIdTemp } = useParams();
   const navigate = useNavigate();
 
-  // get article from DB by articleId
+  // get article from DB by articleIdTemp
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/article-temp/${articleId}`)
+      .get(`http://localhost:5000/article-temp/${articleIdTemp}`, apiConfig)
       .then((res) => {
         const dbArticle = res.data;
         if (!dbArticle) {
-          window.alert(`Không tìm thấy bài viết với id ${articleId} `);
+          window.alert(
+            `Không tìm thấy bài viết trong bộ nhớ tạm, có thể bạn đã duyệt/xóa bài viết này`
+          );
           navigate("/article-table");
           return;
         }
@@ -42,140 +79,250 @@ export default function ViewArticleTemp({ userRole, userInfos }) {
         const message = `Có lỗi xảy ra: ${err}`;
         window.alert(message);
       });
-  }, [articleId, navigate]);
+  }, [articleIdTemp, navigate]);
 
-  async function onApprove() {
-    // create new article
-    const newArticle = { ...article, status: "Approved" };
-    axios
-      .post("http://localhost:5000/article/add", newArticle)
-      .then((res) => {
-        if (res.data && res.data.message === "Article already exists") {
-          window.alert("Bài viết cùng tên cho bệnh này đã tồn tại!");
-        } else {
-          console.log("Article created:", res.data);
-          setArticle({
-            id: "",
-            title: "",
-            diseaseId: "",
-            diseaseName: "",
-            infos: [],
-            treatments: [],
-            medSpecialty: "",
-            createInfos: {
-              doctorCreated: "",
-              doctorID: "",
-              timeCreated: "",
-              timeEdited: "",
-            },
-            isDisplay: false,
-            status: "",
+  async function confirmApprove(e) {
+    e.preventDefault();
+    if (article.status === "Pending Create") {
+      try {
+        // Create article
+        axios
+          .post(
+            "http://localhost:5000/article/add",
+            { ...article, status: "Approved" },
+            apiConfig
+          )
+          .then((res) => {
+            if (res.data && res.data.message === "Article already exists") {
+              throw new Error("Bài viết cùng tên cho bệnh này đã tồn tại!");
+            }
+            console.log("Article created:", res.data);
           });
-        }
-      })
-      .catch((err) => {
+        // Add article short info to disease
+        const articleShort = {
+          id: article.id,
+          title: article.title,
+          doctorID: article.createInfos.doctorID,
+        };
+        await axios
+          .post(
+            `http://localhost:5000/disease/${article.diseaseId}/add-article`,
+            articleShort,
+            apiConfig
+          )
+          .then((res) => {
+            console.log("Disease relatedArticle Added:", res.data);
+          });
+        // Create new notification
+        const notif = {
+          id: uuidv4(),
+          fromInfos: {
+            name: userInfos.fullName,
+            role: userRole,
+            medSpecialty: userInfos.medSpecialty,
+            doctorID: userInfos.doctorID,
+          },
+          toDoctorID: [article.createInfos.doctorID],
+          content: {
+            type: "Duyệt tạo bài viết",
+            detail: `Bác sĩ trưởng Khoa ${userInfos.medSpecialty} đã duyệt bài viết do bác sĩ ${article.createInfos.doctorCreated} tạo`,
+            link: `/disease/${article.diseaseId}/article/${article.id}/view`,
+          },
+          timeSent: formattedTime,
+          status: "Chưa xem",
+        };
+        await axios
+          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .then((res) => {
+            console.log("Notification created", res.data);
+          });
+        confirmDelete(e, true);
+      } catch (err) {
         const message = `Có lỗi xảy ra: ${err}`;
         window.alert(message);
-      });
-    // update disease article
-    const newArtShort = {
-      id: newArticle.id,
-      title: newArticle.title,
-      doctorID: newArticle.createInfos.doctorID,
-    };
-    axios
-      .post(
-        `http://localhost:5000/disease/${diseaseId}/add-article`,
-        newArtShort
-      )
-      .then((res) => {
-        console.log("Disease relatedArticle Added:", res.data);
-        navigate(`/article-table`);
-      })
-      .catch((err) => {
+      }
+    } else if (article.status === "Pending Update") {
+      try {
+        // Update article
+        await axios.post(
+          `http://localhost:5000/article/update/${article.id}`,
+          { ...article, status: "Approved" },
+          apiConfig
+        );
+        // Update article short info in disease
+        const articleShort = {
+          id: article.id,
+          title: article.title,
+          doctorID: article.createInfos.doctorID,
+        };
+        await axios.post(
+          `http://localhost:5000/disease/${article.diseaseId}/update-article/${article.id}`,
+          articleShort,
+          apiConfig
+        );
+        // Create new notification
+        const notif = {
+          id: uuidv4(),
+          fromInfos: {
+            name: userInfos.fullName,
+            role: userRole,
+            medSpecialty: userInfos.medSpecialty,
+            doctorID: userInfos.doctorID,
+          },
+          toDoctorID: [article.createInfos.doctorID],
+          content: {
+            type: "Duyệt chỉnh sửa bài viết",
+            detail: `Bác sĩ trưởng Khoa ${userInfos.medSpecialty} đã duyệt chỉnh sửa bài viết ${article.title}`,
+            link: `/disease/${article.diseaseId}/article/${article.id}/view`,
+          },
+          timeSent: formattedTime,
+          status: "Chưa xem",
+        };
+        await axios
+          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .then((res) => {
+            console.log("Notification created", res.data);
+          });
+        confirmDelete(e, true);
+      } catch (err) {
         const message = `Có lỗi xảy ra: ${err}`;
         window.alert(message);
-      });
-    // delete article in temp
-    onDelete();
+      }
+    }
   }
 
-  async function onDelete() {
-    if (
-      window.confirm("Bạn có chắc muốn xóa bài viết này trong bộ nhớ tạm thời?")
-    ) {
-      axios
-        .delete(`http://localhost:5000/article-temp/${articleId}`)
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((err) => {
+  async function confirmDelete(e, approved) {
+    e.preventDefault();
+    if (approved) {
+      try {
+        axios.delete(
+          `http://localhost:5000/article-temp/${articleIdTemp}`,
+          apiConfig
+        );
+      } catch (err) {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
+      }
+    } else {
+      if (window.confirm("Xóa bài viết này trong bộ nhớ tạm thời?")) {
+        try {
+          axios.delete(
+            `http://localhost:5000/article-temp/${articleIdTemp}`,
+            apiConfig
+          );
+          const notif = {
+            id: uuidv4(),
+            fromInfos: {
+              name: userInfos.fullName,
+              role: userRole,
+              medSpecialty: userInfos.medSpecialty,
+              doctorID: userInfos.doctorID,
+            },
+            toDoctorID: [article.doctorReqID],
+            content: {
+              type:
+                article.status === "Pending Create"
+                  ? "Không duyệt tạo bài viết"
+                  : "Không duyệt chỉnh sửa bài viết",
+              detail:
+                article.status === "Pending Create"
+                  ? `Bác sĩ trưởng Khoa không duyệt tạo bài viết ${article.title}`
+                  : `Bác sĩ trưởng Khoa không duyệt chỉnh sửa bài viết ${article.title}`,
+              link: "",
+            },
+            timeSent: formattedTime,
+            status: "Chưa xem",
+          };
+          await axios
+            .post("http://localhost:5000/notification/add", notif, apiConfig)
+            .then((res) => {
+              console.log("Notification created", res.data);
+            });
+        } catch (err) {
           const message = `Có lỗi xảy ra: ${err}`;
           window.alert(message);
-        });
-      navigate(`/article-table`);
+        }
+      }
     }
+    // Set default and navigate
+    setArticle((prev) => ({
+      ...prev,
+      title: "",
+      infos: [],
+      treatments: [],
+    }));
+    navigate(`/article-table`);
   }
 
   return (
     <div>
-      <h3 className="container text-center text-body pt-5">XEM BÀI VIẾT</h3>
-      <div className="container p-5">
-        <div className="card border-primary-subtle p-5">
-          <form>
-            <div>
-              {
-                <ArticleForm
-                  article={article}
-                  setArticle={setArticle}
-                  editMode={false}
-                />
-              }
-            </div>
-            <div className="row pt-3 pb-3 justify-content-end">
-              <div className="col-3 d-grid gap-2">
-                <NavLink
-                  className="btn btn-outline-primary"
-                  to={`/article-table`}
-                >
-                  QUAY LẠI
-                </NavLink>
-              </div>
-              <div className="col-3 d-grid gap-2">
-                <NavLink
-                  className="btn btn-outline-primary"
-                  to={`/disease/${diseaseId}/article-temp/${articleId}/pat-view`}
-                >
-                  XEM CHẾ ĐỘ NGƯỜI DÙNG
-                </NavLink>
-              </div>
-              {userRole === "head-doctor" && (
-                <div className="col-3 d-grid gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    onClick={() => onApprove()}
-                  >
-                    DUYỆT BÀI VIẾT
-                  </button>
+      {isPatView ? (
+        ArticlePatView({ article, setIsPatView })
+      ) : (
+        <div>
+          <h3 className="container text-center text-body pt-5">XEM BÀI VIẾT</h3>
+          <div className="container p-5">
+            <div className="card border-primary-subtle p-5">
+              <form>
+                <div>
+                  {
+                    <ArticleForm
+                      article={article}
+                      setArticle={setArticle}
+                      mode="view"
+                    />
+                  }
                 </div>
-              )}
-              {(userRole === "head-doctor" ||
-                userInfos.doctorID === article.createInfos.doctorID) && (
-                <div className="col-3 d-grid gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger"
-                    onClick={() => onDelete()}
-                  >
-                    XÓA BÀI VIẾT
-                  </button>
+                <div className="row pt-3 pb-3 justify-content-end">
+                  <div className="col-3 d-grid gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={() => {
+                        navigate(-1);
+                      }}
+                    >
+                      QUAY LẠI
+                    </button>
+                  </div>
+                  <div className="col-3 d-grid gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={() => setIsPatView(true)}
+                    >
+                      XEM CHẾ ĐỘ NGƯỜI DÙNG
+                    </button>
+                  </div>
+                  {userRole === "head-doctor" && (
+                    <div className="col-3 d-grid gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        onClick={(e) => confirmApprove(e)}
+                      >
+                        XÁC NHẬN DUYỆT
+                      </button>
+                    </div>
+                  )}
+                  {(userRole === "head-doctor" ||
+                    userInfos.doctorID === article.createInfos.doctorID) && (
+                    <div className="col-3 d-grid gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={(e) => confirmDelete(e, false)}
+                      >
+                        XÁC NHẬN XÓA
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
+              </form>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

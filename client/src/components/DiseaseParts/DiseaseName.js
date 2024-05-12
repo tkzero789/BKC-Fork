@@ -1,33 +1,57 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const Symptom = (props) => {
-  return (
-    <div className="col-4 p-2">
-      <div className="border border-primary-subtle p-2 text-center">
-        <p className="m-0">{props.symptom.name}</p>
-      </div>
-    </div>
-  );
-};
+export default function DiseaseName({ disease, setDisease, dbSymps, mode }) {
+  // get chosen symptoms and chosen descriptions
+  const [chosenSymps, setChosenSymps] = useState([]);
+  const [chosenDescs, setChosenDescs] = useState([]);
+  useEffect(() => {
+    setChosenSymps(
+      dbSymps.filter((symptom) => disease.symptomIds.includes(symptom.id))
+    );
+  }, [dbSymps, disease.symptomIds]);
 
-const Details = (props) => {
-  const categoryList = props.symptom.categories;
-  const descriptionList = categoryList.map((category) => category.descriptions);
-  const descriptionDetailArray = descriptionList.flatMap((sublist) =>
-    sublist.map((item) => item.descriptionDetail)
-  );
-  return (
-    <div className="p-2">
-      <p className="m-0">
-        - {props.symptom.name}: {descriptionDetailArray.join(", ")}
-      </p>
-    </div>
-  );
-};
+  useEffect(() => {
+    const chosenDescs = [];
+    for (const chosenSymp of chosenSymps) {
+      for (const cat of chosenSymp.categories) {
+        for (const des of cat.descriptions) {
+          if (disease.descIds.some((desc) => desc.descriptionId === des.id)) {
+            chosenDescs.push({
+              symptomId: chosenSymp.id,
+              descriptionDetail: des.descriptionDetail,
+            });
+          }
+        }
+      }
+    }
+    setChosenDescs(chosenDescs);
+  }, [chosenSymps]);
 
-const DiseaseName = ({ disease, setDisease, editMode }) => {
   const updateField = (event) => {
-    setDisease({ ...disease, name: event.target.value });
+    setDisease({ ...disease, [event.target.name]: event.target.value });
+  };
+
+  const Symptom = ({ symptom, key }) => {
+    return (
+      <div key={key} className="col-4 p-2">
+        <div className="border border-primary-subtle p-2 text-center">
+          <p className="m-0">{symptom.name}</p>
+        </div>
+      </div>
+    );
+  };
+
+  const Details = ({ symptom, key }) => {
+    const descDetails = chosenDescs
+      .filter((desc) => desc.symptomId === symptom.id)
+      .map((desc) => desc.descriptionDetail);
+    return (
+      <div key={key} className="p-2">
+        <p className="m-0">
+          - {symptom.name}: {descDetails.join(", ")}
+        </p>
+      </div>
+    );
   };
 
   return (
@@ -39,7 +63,7 @@ const DiseaseName = ({ disease, setDisease, editMode }) => {
           className="form-control border-primary-subtle col"
           name="name"
           value={disease.name}
-          readOnly={!editMode}
+          readOnly={mode === "view"}
           onChange={(e) => updateField(e)}
         />
       </div>
@@ -74,7 +98,7 @@ const DiseaseName = ({ disease, setDisease, editMode }) => {
         <h4 className="text-blue-2 col-3">TRIỆU CHỨNG</h4>
         <div className="border border-primary-subtle rounded col-9">
           <div className="row">
-            {disease.symptoms.map((symptom) => {
+            {chosenSymps.map((symptom) => {
               return <Symptom symptom={symptom} key={symptom.name} />;
             })}
           </div>
@@ -84,13 +108,11 @@ const DiseaseName = ({ disease, setDisease, editMode }) => {
       <div className="form-group row pb-5">
         <h4 className="text-blue-2 col-3">MÔ TẢ CHI TIẾT</h4>
         <div className="border border-primary-subtle rounded col">
-          {disease.symptoms.map((symptom) => {
+          {chosenSymps.map((symptom) => {
             return <Details symptom={symptom} key={symptom.name} />;
           })}
         </div>
       </div>
     </div>
   );
-};
-
-export default DiseaseName;
+}

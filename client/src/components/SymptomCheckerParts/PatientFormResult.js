@@ -14,8 +14,7 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
   const [part, setPart] = useState(1);
 
   useEffect(() => {
-    if (patientResult.length > 0) setChoosingDisease(patientResult[0]);
-    chooseDisease(patientResult[0]);
+    if (patientResult.length > 0) chooseDisease(patientResult[0]);
   }, [patientResult]);
 
   function chooseDisease(disease) {
@@ -208,6 +207,13 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
                   key={choosingArticle.id}
                 />
               )}
+              {diseaseArticles.length > 1 &&
+                diseaseArticles
+                  .filter((article) => article.id !== choosingArticle.id)
+                  .map((article) => (
+                    <OtherArticle article={article} key={article.id} />
+                  ))}
+
               <div className="col-12 mb-3 p-3 box-shadow-1">
                 <h4
                   className="fw-med text-blue-2 d-flex justify-content-center pb-3"
@@ -243,12 +249,6 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
                   </button>
                 </div>
               </div>
-              {diseaseArticles.length > 1 &&
-                diseaseArticles
-                  .filter((article) => article.id !== choosingArticle.id)
-                  .map((article) => (
-                    <OtherArticle article={article} key={article.id} />
-                  ))}
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 
 import SymptomForm from "../../components/SymptomParts/SymptomForm";
@@ -10,7 +11,9 @@ export default function EditSymptom({ userRole, userInfos }) {
     headers: { Authorization: `Bearer ${userToken}` },
   };
   const now = new Date();
-  const formattedDate = `${String(now.getDate()).padStart(2, "0")}/${String(
+  const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
     now.getMonth() + 1
   ).padStart(2, "0")}/${now.getFullYear()}`;
 
@@ -31,6 +34,7 @@ export default function EditSymptom({ userRole, userInfos }) {
         ],
       },
     ],
+    diseaseUsedIds: [],
     createInfos: {
       doctorCreated: "",
       doctorId: "",
@@ -38,7 +42,6 @@ export default function EditSymptom({ userRole, userInfos }) {
       timeEdited: "",
     },
     status: "",
-    doctorReqID: "",
   });
   // store original name to check duplicate if admin changes the name
   const [origName, setOrigName] = useState("");
@@ -63,10 +66,8 @@ export default function EditSymptom({ userRole, userInfos }) {
           ...dbsymptom,
           createInfos: {
             ...dbsymptom.createInfos,
-            timeEdited: formattedDate,
+            timeEdited: formattedTime,
           },
-          status: "Pending Update",
-          doctorReqID: userInfos.doctorID,
         });
         setOrigName(dbsymptom.name);
         setOrigCats(dbsymptom.categories.map((cat) => cat.id));
@@ -81,6 +82,29 @@ export default function EditSymptom({ userRole, userInfos }) {
         window.alert(message);
       });
   }, [symptomId, navigate]);
+
+  function confirmCancle(e) {
+    if (window.confirm("Hủy và trở về trạng thái xem?")) {
+      setSymptom((prev) => ({
+        ...prev,
+        name: "",
+        categories: [
+          {
+            id: "",
+            categoryName: "Vị trí",
+            descriptions: [
+              {
+                id: "",
+                descriptionDetail: "",
+                descriptionImg: "",
+              },
+            ],
+          },
+        ],
+      }));
+      navigate(-1);
+    }
+  }
 
   async function confirmAdminEdit(e) {
     if (symptom.name === "") {
@@ -100,37 +124,80 @@ export default function EditSymptom({ userRole, userInfos }) {
       }
     }
     e.preventDefault();
-    if (origName !== symptom.name) {
+    try {
+      if (origName !== symptom.name) {
+        await axios
+          .get(`http://localhost:5000/symptom/${symptom.name}`)
+          .then((res) => {
+            if (res.data) {
+              throw new Error(
+                "Triệu chứng cùng tên đã có sẵn trong cơ sở dữ liệu!"
+              );
+            }
+          });
+      }
+      // Edit symptom
       await axios
-        .get(`http://localhost:5000/symptom/${symptom.name}`)
+        .post(
+          `http://localhost:5000/symptom/update/${symptomId}`,
+          { ...symptom, status: "Approved" },
+          apiConfig
+        )
         .then((res) => {
-          if (res.data) {
-            window.alert("Căn bệnh cùng tên đã có trong database");
-            return;
-          }
-        })
-        .catch((err) => {
-          const message = `Có lỗi xảy ra: ${err}`;
-          window.alert(message);
+          console.log("Symptom edited", res.data);
         });
+      // Create notification
+      const resIds = await axios.get(`http://localhost:5000/user/doctor-ids`);
+      const doctorIds = resIds.data;
+      const notif = {
+        id: uuidv4(),
+        fromInfos: {
+          name: userInfos.fullName,
+          role: userRole,
+          medSpecialty: userInfos.medSpecialty,
+          doctorID: userInfos.doctorID,
+        },
+        toDoctorID: doctorIds,
+        content: {
+          type: "Chỉnh sửa triệu chứng",
+          detail: `Admin đã chỉnh sửa triệu chứng ${origName} (tên hiện tại là ${symptom.name})`,
+          link: `/symptom/${symptomId}/view`,
+        },
+        timeSent: formattedTime,
+        status: "Chưa xem",
+      };
+      await axios
+        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .then((res) => {
+          console.log("Notification created", res.data);
+        });
+      // Set default and navigate
+      setSymptom((prev) => ({
+        ...prev,
+        name: "",
+        categories: [
+          {
+            id: "",
+            categoryName: "Vị trí",
+            descriptions: [
+              {
+                id: "",
+                descriptionDetail: "",
+                descriptionImg: "",
+              },
+            ],
+          },
+        ],
+      }));
+      navigate(`/symptom/${symptomId}/view`);
+    } catch (err) {
+      const message = `Có lỗi xảy ra: ${err}`;
+      window.alert(message);
     }
-    axios
-      .post(
-        `http://localhost:5000/symptom/update/${symptomId}`,
-        { ...symptom, status: "Approved" },
-        apiConfig
-      )
-      .then((res) => {
-        console.log("Symptom edited", res.data);
-        navigate(`/symptom/${symptomId}/view`);
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
   }
 
   async function confirmEdit(e) {
+    e.preventDefault();
     if (symptom.name === "") {
       window.alert("Chưa nhập tên bệnh");
       return;
@@ -146,49 +213,79 @@ export default function EditSymptom({ userRole, userInfos }) {
           }
         }
       }
-    e.preventDefault();
-    axios
-      .post(`http://localhost:5000/symptom-temp/add`, symptom, apiConfig)
-      .then((res) => {
-        if (res.data && res.data.message === "Symptom already exists") {
-          window.alert(
-            "Bạn đã chỉnh sửa căn bệnh này, vui lòng đợi admin xét duyệt!"
-          );
-          return;
-        }
-        console.log("Symptom edited", res.data);
-        setSymptom({
-          id: "",
-          name: "",
-          position: "",
-          categories: [
-            {
-              id: "",
-              categoryName: "Vị trí",
-              descriptions: [
-                {
-                  id: "",
-                  descriptionDetail: "",
-                  descriptionImg: "",
-                },
-              ],
-            },
-          ],
-          createInfos: {
-            doctorCreated: "",
-            doctorId: "",
-            timeCreated: "",
-            timeEdited: "",
-          },
-          status: "",
-          doctorReqID: "",
+    try {
+      // Edit symptom
+      const editedSymp = {
+        ...symptom,
+        idTemp: uuidv4(),
+        status: "Pending Update",
+        doctorReqID: userInfos.doctorID,
+      };
+      await axios
+        .post(`http://localhost:5000/symptom-temp/add`, editedSymp, apiConfig)
+        .then((res) => {
+          if (res.data && res.data.message === "Symptom already exists") {
+            throw new Error(
+              "Bạn đã chỉnh sửa triệu chứng này, vui lòng đợi admin xét duyệt!"
+            );
+          }
+          console.log("Symptom edited", res.data);
         });
-        navigate(`/symptom-table`);
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
+      // Create notification to admin
+      const notif = {
+        id: uuidv4(),
+        fromInfos: {
+          name: userInfos.fullName,
+          role: userRole,
+          medSpecialty: userInfos.medSpecialty,
+          doctorID: userInfos.doctorID,
+        },
+        toDoctorID: ["ADMIN"],
+        content: {
+          type: "Chỉnh sửa triệu chứng",
+          detail: `Bác sĩ trưởng Khoa ${userInfos.medSpecialty} đã chỉnh sửa triệu chứng ${symptom.name}`,
+          link: `/symptom-temp/${editedSymp.idTemp}/approve`,
+        },
+        timeSent: formattedTime,
+        status: "Chưa xem",
+      };
+      await axios
+        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .then((res) => {
+          console.log("Notification created", res.data);
+        });
+      // Set default and navigate
+      setSymptom({
+        id: "",
+        name: "",
+        position: "",
+        categories: [
+          {
+            id: "",
+            categoryName: "Vị trí",
+            descriptions: [
+              {
+                id: "",
+                descriptionDetail: "",
+                descriptionImg: "",
+              },
+            ],
+          },
+        ],
+        createInfos: {
+          doctorCreated: "",
+          doctorId: "",
+          timeCreated: "",
+          timeEdited: "",
+        },
+        status: "",
+        doctorReqID: "",
       });
+      navigate(`/symptom-table`);
+    } catch (err) {
+      const message = `Có lỗi xảy ra: ${err}`;
+      window.alert(message);
+    }
   }
 
   return (
@@ -210,12 +307,15 @@ export default function EditSymptom({ userRole, userInfos }) {
             </div>
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
-                <NavLink
+                <button
+                  type="button"
                   className="btn btn-outline-primary"
-                  to={`/symptom/${symptomId}/view`}
+                  onClick={(e) => {
+                    confirmCancle(e);
+                  }}
                 >
-                  HỦY CHỈNH SỬA CĂN BỆNH
-                </NavLink>
+                  HỦY CHỈNH SỬA
+                </button>
               </div>
               <div className="col-3 d-grid gap-2">
                 <button

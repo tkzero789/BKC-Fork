@@ -1,49 +1,50 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 import DiseaseAgeGen from "../../components/DiseaseParts/DiseaseAgeGen";
-import DiseaseSymptoms from "../../components/DiseaseParts/DiseaseSymptoms";
-import DiseaseSympDes from "../../components/DiseaseParts/DiseaseSympDes";
-import DiseaseNewSympDes from "../../components/DiseaseParts/DiseaseNewSympDes";
+import DiseaseSymps from "../../components/DiseaseParts/DiseaseSymps";
+import DiseaseDescs from "../../components/DiseaseParts/DiseaseDescs";
 import DiseaseName from "../../components/DiseaseParts/DiseaseName";
 
-export default function CreateDisease({ userInfos }) {
+export default function CreateDisease({ userRole, userInfos }) {
   const userToken = localStorage.getItem("userToken");
   const apiConfig = {
     headers: { Authorization: `Bearer ${userToken}` },
   };
+
   const now = new Date();
-  const formattedDate = `${String(now.getDate()).padStart(2, "0")}/${String(
+  const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
     now.getMonth() + 1
   ).padStart(2, "0")}/${now.getFullYear()}`;
 
   const [disease, setDisease] = useState({
     id: uuidv4(),
+    idTemp: uuidv4(),
     name: "",
     ageRanges: [],
     genders: [],
-    symptoms: [],
+    symptomIds: [],
+    descIds: [],
     medSpecialty: userInfos.medSpecialty,
     relatedArticles: [],
     createInfos: {
       doctorCreated: userInfos.fullName,
       doctorID: userInfos.doctorID,
-      timeCreated: formattedDate,
+      timeCreated: formattedTime,
       timeEdited: null,
     },
     status: "Pending Create",
+    doctorReqID: userInfos.doctorReqID,
   });
-
   const [dbSymps, setDbSymps] = useState([]);
-  // chosenSymps, chosenCats, chosenDes are Symptoms, Categories and Descriptions existing in DB
-  // AND have been chosen in the process, only contain id
   const [chosenSymps, setChosenSymps] = useState([]);
-  const [chosenCats, setChosenCats] = useState([]);
-  const [chosenDes, setChosenDes] = useState([]);
   // set form steps
   const [step, setStep] = useState(1);
+  const [finalStep, setFinalStep] = useState(3);
   const navigate = useNavigate();
 
   // get symptoms from db
@@ -59,46 +60,36 @@ export default function CreateDisease({ userInfos }) {
       });
   }, []);
 
+  useEffect(() => {
+    setChosenSymps(
+      dbSymps.filter((symptom) => disease.symptomIds.includes(symptom.id))
+    );
+  }, [dbSymps, disease.symptomIds]);
+
+  useEffect(() => {
+    setFinalStep(3 + chosenSymps.length);
+  }, [chosenSymps]);
+
   // display components step by step
   function StepDisplay() {
     if (step === 1) {
       return <DiseaseAgeGen disease={disease} setDisease={setDisease} />;
     } else if (step === 2) {
       return (
-        <DiseaseSymptoms
-          disease={disease}
-          dbSymps={dbSymps}
-          setDisease={setDisease}
-          chosenSymps={chosenSymps}
-          setChosenSymps={setChosenSymps}
-          chosenCats={chosenCats}
-          setChosenCats={setChosenCats}
-          chosenDes={chosenDes}
-          setChosenDes={setChosenDes}
-        />
-      );
-    } else if (step === 3) {
-      return (
-        <DiseaseSympDes
+        <DiseaseSymps
           disease={disease}
           setDisease={setDisease}
           dbSymps={dbSymps}
-          chosenSymps={chosenSymps}
-          chosenCats={chosenCats}
-          setChosenCats={setChosenCats}
-          chosenDes={chosenDes}
-          setChosenDes={setChosenDes}
+          mode="create"
         />
       );
-    } else if (step === 4) {
+    } else if (step > 2 && step < finalStep) {
       return (
-        <DiseaseNewSympDes
+        <DiseaseDescs
           disease={disease}
           setDisease={setDisease}
-          chosenSymps={chosenSymps}
-          chosenCats={chosenCats}
-          chosenDes={chosenDes}
-          userInfos={userInfos}
+          chosenSymp={chosenSymps[step - 3]}
+          mode="create"
         />
       );
     } else {
@@ -106,7 +97,8 @@ export default function CreateDisease({ userInfos }) {
         <DiseaseName
           disease={disease}
           setDisease={setDisease}
-          editMode={true}
+          dbSymps={dbSymps}
+          mode="create"
         />
       );
     }
@@ -120,72 +112,42 @@ export default function CreateDisease({ userInfos }) {
     setStep((step) => step + 1);
   }
 
-  // at step 4 (add new symptom description), before go to next step, check if there is any
-  // new symptom or category or description has same name with existing ones in DB
-  function checkNewSympDes() {
-    if (disease.symptoms.length > 0) {
-      const dbSympNames = dbSymps.map((dbSymp) => dbSymp.name);
-      for (const symp of disease.symptoms) {
-        if (chosenSymps.includes(symp.id)) {
-          const dbCats = dbSymps.filter(
-            (dbSymp) => dbSymp.name === symp.name
-          )[0].categories;
-          const dbCatNames = dbCats.map((dbCat) => dbCat.categoryName);
-          for (const cat of symp.categories) {
-            if (chosenCats.includes(cat.id)) {
-              const dbDes = dbCats.filter(
-                (dbCat) => dbCat.categoryName === cat.categoryName
-              )[0].descriptions;
-              const dbDesDetail = dbDes.map((dbDes) => dbDes.descriptionDetail);
-              for (const des of cat.descriptions) {
-                if (!chosenDes.includes(des.id)) {
-                  if (des.descriptionDetail === "") {
-                    window.alert(`Vui lòng điền mô tả`);
-                    return;
-                  }
-                  if (dbDesDetail.includes(des.descriptionDetail)) {
-                    window.alert(
-                      `Mô tả ${des.descriptionDetail} của thuộc tính ${cat.categoryName} của triệu chứng ${symp.name} đã tồn tại!`
-                    );
-                    return;
-                  }
-                }
-              }
-            } else if (!chosenCats.includes(cat.id)) {
-              if (dbCatNames.includes(cat.categoryName)) {
-                window.alert(
-                  `Thuộc tính ${cat.categoryName} của triệu chứng ${symp.name} đã tồn tại!`
-                );
-                return;
-              }
-              for (const des of cat.descriptions) {
-                if (des.descriptionDetail === "") {
-                  window.alert(`Vui lòng điền mô tả`);
-                  return;
-                }
-              }
-            }
-          }
-        } else if (!chosenSymps.includes(symp.id)) {
-          if (symp.name === "") {
-            window.alert(`Vui lòng điền triệu chứng`);
-            return;
-          }
-          if (dbSympNames.includes(symp.name)) {
-            window.alert(`Triệu chứng ${symp.name} đã tồn tại!`);
-            return;
-          }
-          for (const cat of symp.categories) {
-            for (const des of cat.descriptions) {
-              if (des.descriptionDetail === "") {
-                window.alert(`Vui lòng điền mô tả`);
-                return;
-              }
-            }
-          }
-        }
+  function checkStep() {
+    if (step === 1) {
+      if (disease.ageRanges.length === 0) {
+        window.alert("Vui lòng chọn độ tuổi");
+        return;
       }
-      handleNext();
+      if (disease.genders.length === 0) {
+        window.alert("Vui lòng chọn giới tính");
+        return;
+      }
+    } else if (step === 2) {
+      if (disease.symptomIds.length === 0) {
+        window.alert("Vui lòng chọn ít nhất 1 triệu chứng");
+        return;
+      }
+    } else if (step > 2 && step < finalStep) {
+      const symptomId = disease.symptomIds[step - 3];
+      if (!disease.descIds.some((desc) => desc.symptomId === symptomId)) {
+        window.alert("Vui không chọn mô tả cho triệu chứng");
+        return;
+      }
+    }
+    handleNext();
+  }
+
+  function confirmCancle(e) {
+    if (window.confirm("Hủy tạo và trở về?")) {
+      setDisease((prev) => ({
+        ...prev,
+        name: "",
+        ageRanges: [],
+        genders: [],
+        symptomIds: [],
+        descIds: [],
+      }));
+      navigate(-1);
     }
   }
 
@@ -200,123 +162,59 @@ export default function CreateDisease({ userInfos }) {
     } else if (disease.genders.length === 0) {
       window.alert("Chưa chọn giới tính");
       return;
-    } else if (disease.symptoms.length === 0) {
+    } else if (disease.symptomIds.length === 0) {
       window.alert("Chưa có triệu chứng");
       return;
+    } else if (disease.descIds.length === 0) {
+      window.alert("Chưa có mô tả cho triệu chứng");
+      return;
     }
-    const editedSymptoms = disease.symptoms
-      .filter((symptom) =>
-        chosenSymps.some((existSymp) => existSymp === symptom.id)
-      )
-      .map((item) => ({
-        ...item,
-        diseaseId: disease.id,
-        status: "Pending Update",
-      }));
-    const newSymptoms = disease.symptoms
-      .filter(
-        (symptom) => !chosenSymps.some((existSymp) => existSymp === symptom.id)
-      )
-      .map((item) => ({
-        ...item,
-        diseaseId: disease.id,
-        status: "Pending Create",
-      }));
-    const updatePromises = [];
-    // update edited symptoms
-    if (editedSymptoms.length > 0) {
-      for (const editedSymp of editedSymptoms) {
-        updatePromises.push(
-          axios
-            .post(
-              `http://localhost:5000/symptom-temp/add`,
-              editedSymp,
-              apiConfig
-            )
-            .then((res) => {
-              console.log(
-                "Triệu chứng sẽ được chỉnh sửa sau khi được admin chấp thuận",
-                res.data
-              );
-            })
-            .catch((err) => {
-              const message = `Có lỗi xảy ra: ${err}`;
-              window.alert(message);
-            })
-        );
-      }
-    }
-    // create new symptoms from disease
-    const createPromises = [];
-    if (newSymptoms.length > 0) {
-      for (const newSymp of newSymptoms) {
-        createPromises.push(
-          axios
-            .post("http://localhost:5000/symptom-temp/add", newSymp, apiConfig)
-            .then((res) => {
-              if (res.data && res.data.message === "Symptom already exists") {
-                window.alert(
-                  "Triệu chứng cùng tên đang được người khác thêm vào!"
-                );
-              } else {
-                console.log(
-                  "Triệu chứng sẽ được thêm vào sau khi được admin chấp thuận",
-                  res.data
-                );
-              }
-            })
-            .catch((err) => {
-              const message = `Có lỗi xảy ra: ${err}`;
-              window.alert(message);
-            })
-        );
-      }
-    }
-    // create new disease
-    const newDisease = {
-      ...disease,
-      symptoms: disease.symptoms.map((symptom) => ({
-        id: symptom.id,
-        name: symptom.name,
-        categories: symptom.categories,
-      })),
-    };
     try {
-      await Promise.all([...updatePromises, ...createPromises]);
-      const response = await axios.post(
-        "http://localhost:5000/disease-temp/add",
-        newDisease,
-        apiConfig
-      );
-      if (response.data && response.data.message === "Disease already exists") {
-        window.alert("Căn bệnh cùng tên đang được người khác thêm vào!");
-      } else {
-        console.log(
-          "Căn bệnh sẽ được thêm vào sau khi được admin chấp thuận",
-          response.data
-        );
-        setDisease({
-          id: uuidv4(),
-          name: "",
-          ageRanges: [],
-          genders: [],
-          symptoms: [],
-          medSpecialty: userInfos.medSpecialty,
-          relatedArticles: [],
-          createInfos: {
-            doctorCreated: userInfos.fullName,
-            doctorID: userInfos.doctorID,
-            timeCreated: formattedDate,
-            timeEdited: null,
-          },
-          status: "Pending Create",
+      // Create disease
+      await axios
+        .post("http://localhost:5000/disease-temp/add", disease, apiConfig)
+        .then((res) => {
+          if (res.data && res.data.message === "Disease already exists") {
+            throw new Error("Căn bệnh cùng tên đang được người khác thêm vào!");
+          }
+          console.log("Disease created", res.data);
         });
-        setStep(1);
-        navigate("/disease-table");
-      }
+      // Create notification to admin
+      const notif = {
+        id: uuidv4(),
+        fromInfos: {
+          name: userInfos.fullName,
+          role: userRole,
+          medSpecialty: userInfos.medSpecialty,
+          doctorID: userInfos.doctorID,
+        },
+        toDoctorID: ["ADMIN"],
+        content: {
+          type: "Tạo căn bệnh",
+          detail: `Bác sĩ trưởng Khoa ${userInfos.medSpecialty} đã tạo căn bệnh ${disease.name}`,
+          link: `/disease-temp/${disease.idTemp}/approve`,
+        },
+        timeSent: formattedTime,
+        status: "Chưa xem",
+      };
+      await axios
+        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .then((res) => {
+          console.log("Notification created", res.data);
+        });
+      // Set default and navigate
+      setDisease((prev) => ({
+        ...prev,
+        name: "",
+        ageRanges: [],
+        genders: [],
+        symptomIds: [],
+        descIds: [],
+      }));
+      navigate(`/disease-table`);
     } catch (err) {
-      console.error("Error during symptom updates/creations:", err);
-      window.alert("Có lỗi xảy ra khi cập nhật/tạo triệu chứng!");
+      const message = `Có lỗi xảy ra: ${err}`;
+      window.alert(message);
     }
   }
 
@@ -330,45 +228,39 @@ export default function CreateDisease({ userInfos }) {
 
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  disabled={step === 1}
-                  onClick={handlePrev}
-                >
-                  QUAY LẠI
-                </button>
+                {step === 1 ? (
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={(e) => confirmCancle(e)}
+                  >
+                    HỦY TẠO
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={handlePrev}
+                  >
+                    QUAY LẠI
+                  </button>
+                )}
               </div>
               <div className="col-3 d-grid gap-2">
                 <button
                   type="button"
                   className="btn btn-outline-primary"
                   onClick={(e) => {
-                    if (step === 5) {
+                    if (step === finalStep) {
                       confirmCreate(e);
-                    } else if (step === 4) {
-                      checkNewSympDes();
                     } else {
-                      handleNext();
+                      checkStep(step);
                     }
                   }}
                 >
-                  {step === 5 ? "XÁC NHẬN TẠO" : "TIẾP THEO"}
+                  {step === finalStep ? "XÁC NHẬN TẠO" : "TIẾP THEO"}
                 </button>
               </div>
-              {step === 2 && (
-                <div className="col-3 d-grid gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    onClick={(e) => {
-                      setStep(4);
-                    }}
-                  >
-                    TRIỆU CHỨNG MỚI
-                  </button>
-                </div>
-              )}
             </div>
           </form>
         </div>

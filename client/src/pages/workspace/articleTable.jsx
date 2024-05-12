@@ -6,6 +6,10 @@ import { DataGrid } from "@mui/x-data-grid";
 import "./table.scss";
 
 export default function ArticleTable({ userRole, userInfos }) {
+  const userToken = localStorage.getItem("userToken");
+  const apiConfig = {
+    headers: { Authorization: `Bearer ${userToken}` },
+  };
   const [part, setPart] = useState(1);
   const [articles, setArticles] = useState([]);
   const [tempArticles, setTempArticles] = useState([]);
@@ -25,7 +29,7 @@ export default function ArticleTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/article-temp/`)
+      .get(`http://localhost:5000/article-temp/`, apiConfig)
       .then((res) => {
         const articles = res.data;
         setTempArticles(articles);
@@ -72,21 +76,20 @@ export default function ArticleTable({ userRole, userInfos }) {
                 <div className="viewButton">Xem</div>
               </NavLink>
             )}
-
             {article.status === "Approved" &&
               userInfos.doctorID === params.row.createInfos.doctorID && (
                 <NavLink
                   className="viewLink"
                   to={`/disease/${article.diseaseId}/article/${article.id}/edit`}
                 >
-                  <div className="viewButton">Sửa</div>
+                  <div className="editButton">Sửa</div>
                 </NavLink>
               )}
             {article.status !== "Approved" &&
               userInfos.doctorID === params.row.createInfos.doctorID && (
                 <NavLink
                   className="viewLink"
-                  to={`/disease/${article.diseaseId}/article-temp/${article.id}/approve`}
+                  to={`/article-temp/${article.idTemp}/approve`}
                 >
                   <div className="viewButton">Xem</div>
                 </NavLink>
@@ -94,9 +97,9 @@ export default function ArticleTable({ userRole, userInfos }) {
             {article.status !== "Approved" && userRole === "head-doctor" && (
               <NavLink
                 className="viewLink"
-                to={`/disease/${article.diseaseId}/article-temp/${article.id}/approve`}
+                to={`/article-temp/${article.idTemp}/approve`}
               >
-                <div className="viewButton">Xét duyệt</div>
+                <div className="checkButton">Xét duyệt</div>
               </NavLink>
             )}
           </div>
@@ -121,13 +124,13 @@ export default function ArticleTable({ userRole, userInfos }) {
       <div className="datatableTitle">
         Danh sách bài viết
         {userRole !== "admin" && part === 1 && (
-          <button type="button" className="add-link" onClick={() => setPart(2)}>
-            Của tôi
+          <button type="button" onClick={() => setPart(2)}>
+            Bài viết của tôi
           </button>
         )}
         {userRole !== "admin" && part === 2 && (
-          <button type="button" className="add-link" onClick={() => setPart(1)}>
-            Quay lại
+          <button type="button" onClick={() => setPart(1)}>
+            Xem tất cả các bài viết
           </button>
         )}
       </div>

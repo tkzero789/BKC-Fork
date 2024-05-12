@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const dbo = require("../db/conn");
 
 const verifyJWT = (req, res, next) => {
-  console.log(req.headers);
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -50,6 +49,19 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
+// Middleware to check for head-doctor or admin role
+const isHDrOrAdmin = (req, res, next) => {
+  if (req.role === "admin" || req.role === "head-doctor") {
+    next();
+  } else {
+    return res
+      .status(403)
+      .json({ message: "Forbidden (Head-doctor or Admin access required)" });
+  }
+};
+
+// ------------------------------- Disease ------------------------------------
+
 // get all
 diseaseRoutes.route("/disease").get(async function (req, res) {
   try {
@@ -60,22 +72,6 @@ diseaseRoutes.route("/disease").get(async function (req, res) {
     throw err;
   }
 });
-
-// get all in disease-temp
-diseaseRoutes
-  .route("/disease-temp")
-  .get(verifyJWT, isStaff, async function (req, res) {
-    try {
-      const db_connect = await dbo.getDb("mern_hospital");
-      const result = await db_connect
-        .collection("diseases-temp")
-        .find({})
-        .toArray();
-      res.json(result);
-    } catch (err) {
-      throw err;
-    }
-  });
 
 // get by id
 diseaseRoutes.route("/disease/:id").get(async function (req, res) {
@@ -89,21 +85,17 @@ diseaseRoutes.route("/disease/:id").get(async function (req, res) {
   }
 });
 
-// get by id in disease-temp
-diseaseRoutes
-  .route("/disease-temp/:id")
-  .get(verifyJWT, isStaff, async function (req, res) {
-    try {
-      const db_connect = await dbo.getDb("mern_hospital");
-      const myquery = { id: req.params.id };
-      const result = await db_connect
-        .collection("diseases-temp")
-        .findOne(myquery);
-      res.json(result);
-    } catch (err) {
-      throw err;
-    }
-  });
+// get disease by name (check duplicate)
+diseaseRoutes.route("/disease/:name").get(async function (req, res) {
+  try {
+    const db_connect = await dbo.getDb("mern_hospital");
+    const myquery = { name: req.params.name };
+    const result = await db_connect.collection("diseases").findOne(myquery);
+    res.json(result);
+  } catch (err) {
+    throw err;
+  }
+});
 
 // add whole new disease
 diseaseRoutes
@@ -122,15 +114,91 @@ diseaseRoutes
           name: req.body.name,
           ageRanges: req.body.ageRanges,
           genders: req.body.genders,
-          symptoms: req.body.symptoms,
+          symptomIds: req.body.symptomIds,
+          descIds: req.body.descIds,
           medSpecialty: req.body.medSpecialty,
           relatedArticles: req.body.relatedArticles,
           createInfos: req.body.createInfos,
           status: req.body.status,
         };
         const result = await db_connect.collection("diseases").insertOne(myobj);
-        res.json(result);
+        res.json({ result, myobj });
       }
+    } catch (err) {
+      throw err;
+    }
+  });
+
+// update by id
+diseaseRoutes
+  .route("/disease/update/:id")
+  .post(verifyJWT, isAdmin, async function (req, res) {
+    try {
+      const db_connect = await dbo.getDb("mern_hospital");
+      const myquery = { id: req.params.id };
+      const newvalues = {
+        $set: {
+          name: req.body.name,
+          ageRanges: req.body.ageRanges,
+          genders: req.body.genders,
+          symptomIds: req.body.symptomIds,
+          descIds: req.body.descIds,
+          createInfos: req.body.createInfos,
+          status: req.body.status,
+        },
+      };
+      const result = await db_connect
+        .collection("diseases")
+        .updateOne(myquery, newvalues);
+      res.json({ result, newvalues });
+    } catch (err) {
+      throw err;
+    }
+  });
+
+// delete by id
+diseaseRoutes
+  .route("/disease/:id")
+  .delete(verifyJWT, isAdmin, async function (req, res) {
+    try {
+      const db_connect = await dbo.getDb("mern_hospital");
+      const myquery = { id: req.params.id };
+      const result = await db_connect.collection("diseases").deleteOne(myquery);
+      res.json(result);
+    } catch (err) {
+      throw err;
+    }
+  });
+
+// ------------------------------- Disease-temp -------------------------------
+
+// get all in disease-temp
+diseaseRoutes
+  .route("/disease-temp")
+  .get(verifyJWT, isStaff, async function (req, res) {
+    try {
+      const db_connect = await dbo.getDb("mern_hospital");
+      const result = await db_connect
+        .collection("diseases-temp")
+        .find({})
+        .toArray();
+      res.json(result);
+    } catch (err) {
+      throw err;
+    }
+  });
+
+// get by id in disease-temp
+diseaseRoutes
+  .route("/disease-temp/:idTemp")
+  .get(verifyJWT, isStaff, async function (req, res) {
+    try {
+      const db_connect = await dbo.getDb("mern_hospital");
+      const myquery = { idTemp: req.params.idTemp };
+      const result = await db_connect
+        .collection("diseases-temp")
+        .findOne(myquery);
+      res.json(result);
     } catch (err) {
       throw err;
     }
@@ -150,54 +218,47 @@ diseaseRoutes
       } else {
         const myobj = {
           id: req.body.id,
+          idTemp: req.body.idTemp,
           name: req.body.name,
           ageRanges: req.body.ageRanges,
           genders: req.body.genders,
-          symptoms: req.body.symptoms,
+          symptomIds: req.body.symptomIds,
+          descIds: req.body.descIds,
           medSpecialty: req.body.medSpecialty,
           relatedArticles: req.body.relatedArticles,
           createInfos: req.body.createInfos,
           status: req.body.status,
+          doctorReqID: req.body.doctorReqID,
         };
         const result = await db_connect
           .collection("diseases-temp")
           .insertOne(myobj);
-        res.json(result);
+        res.json({ result, myobj });
       }
     } catch (err) {
       throw err;
     }
   });
 
-// update by id
+// delete by id in diseases-temp
 diseaseRoutes
-  .route("/disease/update/:id")
-  .post(verifyJWT, isAdmin, async function (req, res) {
+  .route("/disease-temp/:idTemp")
+  .delete(verifyJWT, isHDrOrAdmin, async function (req, res) {
     try {
       const db_connect = await dbo.getDb("mern_hospital");
-      const myquery = { id: req.params.id };
-      const newvalues = {
-        $set: {
-          name: req.body.name,
-          ageRanges: req.body.ageRanges,
-          genders: req.body.genders,
-          symptoms: req.body.symptoms,
-          medSpecialty: req.body.medSpecialty,
-          relatedArticles: req.body.relatedArticles,
-          createInfos: req.body.createInfos,
-          status: req.body.status,
-        },
-      };
+      const myquery = { idTemp: req.params.idTemp };
       const result = await db_connect
-        .collection("diseases")
-        .updateOne(myquery, newvalues);
+        .collection("diseases-temp")
+        .deleteOne(myquery);
       res.json(result);
     } catch (err) {
       throw err;
     }
   });
 
-// add new article to relatedArticles array of disease with id
+// ------------------------------- Article part -------------------------------
+
+// add new article to relatedArticles array of disease
 diseaseRoutes
   .route("/disease/:diseaseId/add-article")
   .post(verifyJWT, isHeadDoctor, async function (req, res) {
@@ -212,13 +273,13 @@ diseaseRoutes
       const result = await db_connect
         .collection("diseases")
         .updateOne(myquery, action);
-      res.json(result);
+      res.json({ result, action });
     } catch (err) {
       throw err;
     }
   });
 
-// update article with id (req.body) in relatedArticles array of disease with id (req.params)
+// update article with id in relatedArticles array of disease
 diseaseRoutes
   .route("/disease/:diseaseId/update-article/:articleId")
   .post(verifyJWT, isHeadDoctor, async function (req, res) {
@@ -245,7 +306,7 @@ diseaseRoutes
     }
   });
 
-// delete article with id (req.body) in relatedArticles array of disease with id (req.params)
+// delete article with id in relatedArticles array of disease
 diseaseRoutes
   .route("/disease/:diseaseId/delete-article/:articleId")
   .post(verifyJWT, isHeadDoctor, async function (req, res) {
@@ -265,105 +326,5 @@ diseaseRoutes
       throw err;
     }
   });
-
-// delete by id
-diseaseRoutes
-  .route("/disease/:id")
-  .delete(verifyJWT, isAdmin, async function (req, res) {
-    try {
-      const db_connect = await dbo.getDb("mern_hospital");
-      const myquery = { id: req.params.id };
-      const result = await db_connect.collection("diseases").deleteOne(myquery);
-      res.json(result);
-    } catch (err) {
-      throw err;
-    }
-  });
-
-// delete by id in diseases-temp
-diseaseRoutes
-  .route("/disease-temp/:id")
-  .delete(verifyJWT, isHeadDoctor, isAdmin, async function (req, res) {
-    try {
-      const db_connect = await dbo.getDb("mern_hospital");
-      const myquery = { id: req.params.id };
-      const result = await db_connect
-        .collection("diseases-temp")
-        .deleteOne(myquery);
-      res.json(result);
-    } catch (err) {
-      throw err;
-    }
-  });
-
-// get suitable diseases by patientForm
-diseaseRoutes.route("/suit-diseases").post(async function (req, res) {
-  try {
-    const db_connect = await dbo.getDb("mern_hospital");
-    const diseases = await db_connect.collection("diseases").find({}).toArray();
-    const patientForm = { ...req.body };
-    const matchingDiseases = diseases
-      .filter((disease) => {
-        // Count matching details for each disease
-        const matchingDetailsCount = disease.symptoms.reduce(
-          (count, symptom) => {
-            return (
-              count +
-              patientForm.patientSymptoms.reduce(
-                (innerCount, patientSymptom) => {
-                  if (patientSymptom.symptomName === symptom.symptomName) {
-                    return (
-                      innerCount +
-                      symptom.categories.reduce((categoryCount, category) => {
-                        return (
-                          categoryCount +
-                          category.descriptions.reduce(
-                            (descriptionCount, description) => {
-                              // Check for any match between patient and disease descriptions
-                              const patientMatches = patientSymptom.categories
-                                .flatMap((cat) => cat.descriptions)
-                                .some((pd) =>
-                                  description.descriptionDetail.includes(
-                                    pd.descriptionDetail
-                                  )
-                                );
-                              return (
-                                descriptionCount + (patientMatches ? 1 : 0)
-                              );
-                            },
-                            0
-                          )
-                        );
-                      }, 0)
-                    );
-                  }
-                  return innerCount;
-                },
-                0
-              )
-            );
-          },
-          0
-        );
-
-        disease.matchingDetailsCount = matchingDetailsCount;
-
-        // Filter diseases with at least one matching detail
-        return matchingDetailsCount > 0;
-      })
-      .sort((disease1, disease2) => {
-        // Sort by matching details count (descending) and then by disease name (ascending)
-        const countDiff =
-          disease2.matchingDetailsCount - disease1.matchingDetailsCount;
-        if (countDiff !== 0) return countDiff;
-        return disease1.name.localeCompare(disease2.name);
-      });
-
-    // Add matchingDetailsCount property to each disease in the result
-    res.json(matchingDiseases);
-  } catch (err) {
-    throw err;
-  }
-});
 
 module.exports = diseaseRoutes;

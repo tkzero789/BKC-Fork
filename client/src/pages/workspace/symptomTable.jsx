@@ -65,7 +65,7 @@ export default function SymptomTable({ userRole, userInfos }) {
             {symptom.status !== "Approved" && (
               <NavLink
                 className="viewLink"
-                to={`/symptom-temp/${symptom.id}/approve`}
+                to={`/symptom-temp/${symptom.idTemp}/approve`}
               >
                 <div className="checkButton">
                   {userRole === "admin" ? "Duyệt" : "Xem"}

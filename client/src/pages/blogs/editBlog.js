@@ -1,12 +1,12 @@
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import React, { useState } from "react";
 import Italic from "@tiptap/extension-italic";
 import Image from "@tiptap/extension-image";
-import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
 import "../../pages/blogs/texteditor.scss";
-import { useNavigate } from "react-router-dom";
 
 const MenuBar = ({ editor }) => {
   if (!editor) {
@@ -31,6 +31,36 @@ const MenuBar = ({ editor }) => {
           <i className="bi bi-type-italic"></i>
         </button>
         <button
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
+          className={
+            editor.isActive("heading", { level: 1 }) ? "is-active" : ""
+          }
+        >
+          <i className="bi bi-type-h1"></i>
+        </button>
+        <button
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
+          className={
+            editor.isActive("heading", { level: 2 }) ? "is-active" : ""
+          }
+        >
+          <i className="bi bi-type-h2"></i>
+        </button>
+        <button
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
+          className={
+            editor.isActive("heading", { level: 3 }) ? "is-active" : ""
+          }
+        >
+          <i className="bi bi-type-h3"></i>
+        </button>
+        <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={editor.isActive("bulletList") ? "is-active" : ""}
         >
@@ -41,6 +71,12 @@ const MenuBar = ({ editor }) => {
           className={editor.isActive("orderedList") ? "is-active" : ""}
         >
           <i className="bi bi-list-ol"></i>
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          className={editor.isActive("blockquote") ? "is-active" : ""}
+        >
+          <i className="bi bi-quote"></i>
         </button>
         <button
           onClick={() => editor.chain().focus().undo().run()}
@@ -59,26 +95,12 @@ const MenuBar = ({ editor }) => {
   );
 };
 
-const CreateBlog = ({ userInfos }) => {
+const EditBlog = ({ userInfos }) => {
   const navigate = useNavigate();
-  const now = new Date();
-  const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-    now.getMinutes()
-  ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
-    now.getMonth() + 1
-  ).padStart(2, "0")}/${now.getFullYear()}`;
 
-  const [blog, setBlog] = useState({
-    id: null,
-    title: "",
-    intro: "",
-    image: null,
-    content: "",
-    author: userInfos.fullName,
-    doctorID: userInfos.doctorID,
-    createAt: null,
-    status: "Pending",
-  });
+  const { blogId } = useParams();
+
+  const [blog, setBlog] = useState(null);
 
   const editor = useEditor({
     extensions: [StarterKit, Italic, Image],
@@ -92,18 +114,49 @@ const CreateBlog = ({ userInfos }) => {
     },
   });
 
+  // Fetch blog content based on id
+  useEffect(() => {
+    console.log(blogId);
+    axios
+      .get(`http://localhost:5000/blog/${blogId}`)
+      .then((res) => {
+        setBlog(res.data);
+        if (editor) {
+          editor.commands.setContent(res.data.content);
+        }
+      })
+      .catch((err) => {
+        const message = `Có lỗi xảy ra: ${err}`;
+        window.alert(message);
+      });
+  }, [blogId, editor]);
+
+  if (!blog) {
+    return <div>Loading...</div>;
+  }
+
   // Submit button
   const handleClick = async (e) => {
     e.preventDefault();
+    const now = new Date();
+    const formattedTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+      now.getMinutes()
+    ).padStart(2, "0")} ${String(now.getDate()).padStart(2, "0")}/${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}/${now.getFullYear()}`;
     const updatedBlog = {
       ...blog,
-      id: uuidv4(),
+      status: "Pending",
       createdAt: formattedTime,
     };
 
     try {
-      await axios.post("http://localhost:5000/blog/add", updatedBlog);
+      await axios.post(
+        `http://localhost:5000/blog/edit/${blogId}`,
+        updatedBlog
+      );
       setBlog(updatedBlog);
+      console.log(updatedBlog);
     } catch (error) {
       console.log(error);
     }
@@ -142,7 +195,7 @@ const CreateBlog = ({ userInfos }) => {
   return (
     <>
       <div className="content-container create-blog-text-editor">
-        <h1>Tạo bài blog/ tin tức mới</h1>
+        <h1>Chỉnh sửa bài blog:</h1>
         <span>Tác giả: {userInfos.fullName}</span>
         <div className="text-editor-title">
           <label htmlFor="title">Tựa đề:</label>
@@ -167,17 +220,23 @@ const CreateBlog = ({ userInfos }) => {
             <img src={blog.image} alt="Blog img" />
           </div>
         ) : (
-          <div className="pt-2">Chưa có ảnh nào được upload</div>
+          "Chưa có ảnh nào được upload"
         )}
-        <label htmlFor="info">Nội dung bài blog:</label>
+        <label htmlFor="info">Info</label>
         <div className="text-editor">
           <MenuBar editor={editor} />
           <EditorContent editor={editor} />
         </div>
 
         <div className="text-editor-btn">
+          <Link
+            className="btn btn-outline-secondary me-5"
+            to={`/blog/${blogId}/view`}
+          >
+            Quay lại
+          </Link>
           <button className="btn btn-primary" onClick={handleClick}>
-            Xác nhận tạo
+            Xác nhận chỉnh sửa
           </button>
         </div>
       </div>
@@ -185,4 +244,4 @@ const CreateBlog = ({ userInfos }) => {
   );
 };
 
-export default CreateBlog;
+export default EditBlog;

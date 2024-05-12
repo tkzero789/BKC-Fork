@@ -7,6 +7,7 @@ import TodayIcon from "@mui/icons-material/Today";
 import FeedIcon from "@mui/icons-material/Feed";
 import PeopleIcon from "@mui/icons-material/People";
 import HelpCenterIcon from "@mui/icons-material/HelpCenter";
+import NewspaperIcon from "@mui/icons-material/Newspaper";
 import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import BKCLogo from "../../assets/logo/footerLogo2.svg";
@@ -103,6 +104,12 @@ export default function Sidebar() {
             <li>
               <HelpCenterIcon className="icon" />
               <span>Thông báo</span>
+            </li>
+          </NavLink>
+          <NavLink to="/blog-table" activeclassname="active">
+            <li>
+              <NewspaperIcon className="icon" />
+              <span>Blogs</span>
             </li>
           </NavLink>
           <NavLink to="">

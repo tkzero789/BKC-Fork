@@ -64,27 +64,30 @@ const isHDrOrAdmin = (req, res, next) => {
 // ------------------------------- Symptom ------------------------------------
 
 // get all notifications
-notificationRoutes.route("/notification").get(async function (req, res) {
-  try {
-    const db_connect = await dbo.getDb("mern_hospital");
-    const result = await db_connect
-      .collection("notifications")
-      .find({})
-      .toArray();
-    res.json(result);
-  } catch (err) {
-    throw err;
-  }
-});
+notificationRoutes
+  .route("/notification")
+  .get(verifyJWT, isStaff, async function (req, res) {
+    try {
+      const db_connect = await dbo.getDb("mern_hospital");
+      const result = await db_connect
+        .collection("notifications")
+        .find({})
+        .toArray();
+      res.json(result);
+    } catch (err) {
+      throw err;
+    }
+  });
 
 // get all notifications by doctor ID
 notificationRoutes
   .route("/notification/:doctorID")
-  .get(async function (req, res) {
+  .get(verifyJWT, isStaff, async function (req, res) {
     try {
-      console.log(req.params.doctorID);
       const db_connect = await dbo.getDb("mern_hospital");
-      const query = { toDoctorID: req.params.doctorID };
+      const query = {
+        toDoctorID: { $elemMatch: { $eq: req.params.doctorID } },
+      };
       const result = await db_connect
         .collection("notifications")
         .find(query)
@@ -97,32 +100,20 @@ notificationRoutes
   });
 
 // get notification by id
-notificationRoutes.route("/notification/:id").get(async function (req, res) {
-  try {
-    const db_connect = await dbo.getDb("mern_hospital");
-    const myquery = { id: req.params.id };
-    const result = await db_connect
-      .collection("notifications")
-      .findOne(myquery);
-    res.json(result);
-  } catch (err) {
-    throw err;
-  }
-});
-
-// get notification by name
-notificationRoutes.route("/notification/:name").get(async function (req, res) {
-  try {
-    const db_connect = await dbo.getDb("mern_hospital");
-    const myquery = { name: req.params.name };
-    const result = await db_connect
-      .collection("notifications")
-      .findOne(myquery);
-    res.json(result);
-  } catch (err) {
-    throw err;
-  }
-});
+notificationRoutes
+  .route("/notification/:id")
+  .get(verifyJWT, isStaff, async function (req, res) {
+    try {
+      const db_connect = await dbo.getDb("mern_hospital");
+      const myquery = { id: req.params.id };
+      const result = await db_connect
+        .collection("notifications")
+        .findOne(myquery);
+      res.json(result);
+    } catch (err) {
+      throw err;
+    }
+  });
 
 // add whole new notification
 notificationRoutes
@@ -133,33 +124,30 @@ notificationRoutes
       const myobj = {
         id: req.body.id,
         fromInfos: req.body.fromInfos,
-        toInfos: req.body.toInfos,
+        toDoctorID: req.body.toDoctorID,
         content: req.body.content,
-        status: "Sent",
+        timeSent: req.body.timeSent,
+        status: req.body.status,
       };
       const result = await db_connect
         .collection("notifications")
         .insertOne(myobj);
-      res.json(result);
+      res.json({ result, myobj });
     } catch (err) {
       throw err;
     }
   });
 
-// update notification by id
+// update notification status by id
 notificationRoutes
-  .route("/notification/update/:id")
-  .post(verifyJWT, isAdmin, async function (req, res) {
+  .route("/notification/update-status/:id")
+  .post(verifyJWT, isStaff, async function (req, res) {
     try {
       const db_connect = await dbo.getDb("mern_hospital");
       const myquery = { id: req.params.id };
       const newvalues = {
         $set: {
-          name: req.body.name,
-          position: req.body.position,
-          categories: req.body.categories,
-          createInfos: req.body.createInfos,
-          status: "Approved",
+          status: req.body.status,
         },
       };
       const result = await db_connect

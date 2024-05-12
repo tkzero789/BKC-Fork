@@ -2,8 +2,10 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-const ArticleForm = ({ article, setArticle, editMode }) => {
-  const [finalInfoNumber, setFinalInfoNumber] = useState(1);
+const ArticleForm = ({ article, setArticle, mode }) => {
+  const [finalInfoNumber, setFinalInfoNumber] = useState(
+    article.infos.length + 1
+  );
   const [finalTreatmentNumber, setFinalTreatmentNumber] = useState(
     article.treatments.length + 1
   );
@@ -182,7 +184,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
           className="form-control border-primary-subtle col"
           name="title"
           value={article.title}
-          readOnly={!editMode}
+          readOnly={mode === "view"}
           onChange={(e) => updateTitleField(e)}
         />
       </div>
@@ -193,7 +195,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
             <div key={info.id}>
               <div className="form row pb-3">
                 <div className="col-12" style={{ display: "flex" }}>
-                  {editMode && (
+                  {mode !== "view" && (
                     <i
                       className="bi bi-file-minus"
                       style={{ color: "blue", marginRight: "5px" }}
@@ -209,11 +211,11 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
                   name="about"
                   value={info.about}
                   placeholder="Loại thông tin"
-                  readOnly={!editMode}
+                  readOnly={mode === "view"}
                   onChange={(e) => updateInfoField(info.number, e)}
                 />
                 {info.image === null ? (
-                  editMode && (
+                  mode !== "view" && (
                     <input
                       type="file"
                       name="image"
@@ -232,7 +234,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
                 <textarea
                   name="overview"
                   value={info.overview}
-                  readOnly={!editMode}
+                  readOnly={mode === "view"}
                   className="form-control border-primary-subtle col-9 mb-2"
                   placeholder="Tổng quan"
                   rows="5"
@@ -241,7 +243,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
                 <textarea
                   name="detail"
                   value={info.detail}
-                  readOnly={!editMode}
+                  readOnly={mode === "view"}
                   className="form-control border-primary-subtle col-9"
                   placeholder="Thông tin chi tiết"
                   rows="10"
@@ -251,7 +253,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
             </div>
           );
         })}
-        {editMode && (
+        {mode !== "view" && (
           <div onClick={addInfoField} className="btn btn-outline-primary">
             <h4 className="text-blue-2">THÊM THÔNG TIN</h4>
           </div>
@@ -264,7 +266,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
             <div key={treatment.id}>
               <div className="form row pb-3">
                 <div className="col-12" style={{ display: "flex" }}>
-                  {editMode && (
+                  {mode !== "view" && (
                     <i
                       className="bi bi-file-minus"
                       style={{ color: "blue", marginRight: "5px" }}
@@ -281,11 +283,11 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
                   name="about"
                   value={treatment.about}
                   placeholder="Loại thông tin"
-                  readOnly={!editMode}
+                  readOnly={mode === "view"}
                   onChange={(e) => updateTreatmentField(treatment.number, e)}
                 />
                 {treatment.image === null ? (
-                  editMode && (
+                  mode !== "view" && (
                     <input
                       type="file"
                       name="image"
@@ -306,7 +308,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
                 <textarea
                   name="overview"
                   value={treatment.overview}
-                  readOnly={!editMode}
+                  readOnly={mode === "view"}
                   className="form-control border-primary-subtle col-9 mb-2"
                   placeholder="Tổng quan"
                   rows="5"
@@ -315,7 +317,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
                 <textarea
                   name="detail"
                   value={treatment.detail}
-                  readOnly={!editMode}
+                  readOnly={mode === "view"}
                   className="form-control border-primary-subtle col-9"
                   placeholder="Thông tin chi tiết"
                   rows="10"
@@ -325,7 +327,7 @@ const ArticleForm = ({ article, setArticle, editMode }) => {
             </div>
           );
         })}
-        {editMode && (
+        {mode !== "view" && (
           <div onClick={addTreatmentField} className="btn btn-outline-primary">
             <h4 className="text-blue-2">THÊM PHƯƠNG PHÁP CHỮA TRỊ</h4>
           </div>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { NavLink, useParams } from "react-router-dom";
+import { useNavigate, NavLink, useParams } from "react-router-dom";
 import axios from "axios";
 
 import SymptomForm from "../../components/SymptomParts/SymptomForm";
@@ -26,6 +25,7 @@ export default function ViewSymptom({ userRole, userInfos }) {
         ],
       },
     ],
+    diseaseUsedIds: [],
     createInfos: {
       doctorCreated: "",
       doctorId: "",
@@ -62,7 +62,6 @@ export default function ViewSymptom({ userRole, userInfos }) {
     if (window.confirm("Xóa căn bệnh này trong bộ nhớ chính?")) {
       axios
         .delete(`http://localhost:5000/symptom/${symptomId}`, apiConfig)
-        .then({})
         .catch((err) => {
           const message = `Có lỗi xảy ra: ${err}`;
           window.alert(message);
@@ -80,7 +79,6 @@ export default function ViewSymptom({ userRole, userInfos }) {
             <div>
               <SymptomForm
                 symptom={symptom}
-                setSymptom={setSymptom}
                 mode="view"
                 origCats={[]}
                 origDescs={[]}
@@ -88,12 +86,15 @@ export default function ViewSymptom({ userRole, userInfos }) {
             </div>
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
-                <NavLink
+                <button
+                  type="button"
                   className="btn btn-outline-primary"
-                  to={`/symptom-table`}
+                  onClick={() => {
+                    navigate(-1);
+                  }}
                 >
                   QUAY LẠI
-                </NavLink>
+                </button>
               </div>
               {(userRole === "admin" || userRole === "head-doctor") && (
                 <div className="col-3 d-grid gap-2">

@@ -1,3 +1,30 @@
+.create-blog-text-editor {
+  > h1 {
+    padding: 16px 0;
+    font-size: 36px;
+    color: var(--text-blue);
+    font-weight: var(--roboto-medium-weight);
+  }
+
+  > span {
+    font-size: 18px;
+    font-weight: var(--roboto-medium-weight);
+  }
+
+  label {
+    display: block;
+    padding: 16px 0 8px 0;
+    font-size: 18px;
+    font-weight: var(--roboto-medium-weight);
+  }
+
+  textarea {
+    padding: 8px 12px;
+    resize: none;
+    width: 100%;
+  }
+}
+
 .text-editor {
   border-radius: 8px;
   border: 1px solid gray;
@@ -91,5 +118,14 @@
 }
 
 .text-editor-img {
+  width: 100%;
+}
+
+.text-editor-img img {
   width: 50%;
+}
+
+.text-editor-btn {
+  padding: 16px 0 40px 0;
+  text-align: end;
 }

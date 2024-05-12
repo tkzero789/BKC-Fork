@@ -1,8 +1,6 @@
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import MainNav from "../../components/Navbar/MainNav";
-import LowNav from "../../components/Navbar/LowNav";
 import Footer from "../../components/ForPages/Footer";
 import { Breadcrumbs, Typography } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -16,7 +14,9 @@ const ViewSpecificBlog = () => {
     axios
       .get("http://localhost:5000/blog")
       .then((res) => {
-        setBlogs(res.data);
+        setTimeout(() => {
+          setBlogs(res.data);
+        }, 400);
       })
       .catch((err) => {
         console.error(err);
@@ -35,8 +35,6 @@ const ViewSpecificBlog = () => {
 
   return (
     <>
-      <MainNav />
-      <LowNav />
       <div className="content-container">
         <Breadcrumbs
           className="breadcrumbs"
@@ -47,7 +45,7 @@ const ViewSpecificBlog = () => {
             Trang chủ
           </Link>
           ,
-          <Link className="text-secondary" to="/view-blog">
+          <Link className="text-secondary" to="/view-blog-list">
             Tin tức
           </Link>
           ,<Typography className="text-dark">{blog.title}</Typography>,
@@ -57,73 +55,97 @@ const ViewSpecificBlog = () => {
       <div className="content-container individual-blog">
         <div key={blog.id}>
           <h2>{blog.title}</h2>
-          {blog.image && (
-            <div className="blog-img">
-              <img src={blog.image} alt={blog.title} />
-            </div>
-          )}
-          {blog.content.content.map((item, index) => {
+          <div className="blog-author-info">
+            <span>Tác giả: {blog.author} </span>
+            <span>{blog.createdAt}</span>
+          </div>
+          <p>{blog.intro}</p>
+          {blog.content?.content.map((item, itemIndex) => {
+            const keyPrefix = `${item.type}-${itemIndex}`;
+
             if (item.type === "paragraph") {
               if (item.content === undefined) {
                 return null;
               }
               return (
-                <p key={index}>
-                  {item.content.map((textObj, textObjIndex) => {
+                <p key={keyPrefix}>
+                  {item.content?.map((textObj, textObjIndex) => {
+                    const key = `${keyPrefix}-p-${textObjIndex}`;
                     if (
                       textObj.marks &&
                       textObj.marks.some((mark) => mark.type === "bold")
                     ) {
                       return (
                         <strong>
-                          <span key={textObjIndex}>{textObj.text}</span>
+                          <span key={key}>{textObj.text}</span>
                         </strong>
                       );
                     } else {
-                      return <span key={textObjIndex}>{textObj.text}</span>;
+                      return <span key={key}>{textObj.text}</span>;
                     }
                   })}
                 </p>
               );
             } else if (item.type === "bulletList") {
               return (
-                <ul key={index}>
-                  {item.content.map((listItem, listItemIndex) => (
-                    <li key={listItemIndex}>
-                      {listItem.content.map((paragraph, paragraphIndex) => (
-                        <span key={paragraphIndex}>
-                          {paragraph.content.map((textObj, textObjIndex) => (
-                            <span key={textObjIndex}>{textObj.text}</span>
-                          ))}
-                        </span>
-                      ))}
-                    </li>
-                  ))}
+                <ul key={keyPrefix}>
+                  {item.content?.map((listItem, listItemIndex) => {
+                    const liKey = `${keyPrefix}-li-${listItemIndex}`;
+                    return (
+                      <li key={liKey}>
+                        {listItem.content?.map((paragraph, paragraphIndex) => {
+                          const spanKey = `${liKey}-span-${paragraphIndex}`;
+                          return (
+                            <span key={spanKey}>
+                              {paragraph.content?.map(
+                                (textObj, textObjIndex) => {
+                                  const textKey = `${spanKey}-text-${textObjIndex}`;
+                                  return (
+                                    <span key={textKey}>{textObj.text}</span>
+                                  );
+                                }
+                              )}
+                            </span>
+                          );
+                        })}
+                      </li>
+                    );
+                  })}
                 </ul>
               );
             } else if (item.type === "orderedList") {
               return (
-                <ol key={index}>
-                  {item.content.map((listItem, listItemIndex) => (
-                    <li key={listItemIndex}>
-                      {listItem.content.map((paragraph, paragraphIndex) => (
-                        <span key={paragraphIndex}>
-                          {paragraph.content.map((textObj, textObjIndex) => (
-                            <span key={textObjIndex}>{textObj.text}</span>
-                          ))}
-                        </span>
-                      ))}
-                    </li>
-                  ))}
+                <ol key={keyPrefix}>
+                  {item.content?.map((listItem, listItemIndex) => {
+                    const liKey = `${keyPrefix}-li-${listItemIndex}`;
+                    return (
+                      <li key={liKey}>
+                        {listItem.content?.map((paragraph, paragraphIndex) => {
+                          const spanKey = `${liKey}-span-${paragraphIndex}`;
+                          return (
+                            <span key={spanKey}>
+                              {paragraph.content?.map(
+                                (textObj, textObjIndex) => {
+                                  const textKey = `${spanKey}-text-${textObjIndex}`;
+                                  return (
+                                    <span key={textKey}>{textObj.text}</span>
+                                  );
+                                }
+                              )}
+                            </span>
+                          );
+                        })}
+                      </li>
+                    );
+                  })}
                 </ol>
               );
-            } else if (item.type === "heading" && item.attrs.level === 1) {
+            } else if (item.type === "image") {
+              const imgKey = `${keyPrefix}-img`;
               return (
-                <h1 key={index}>
-                  {item.content.map((textObj, textObjIndex) => (
-                    <span key={textObjIndex}>{textObj.text}</span>
-                  ))}
-                </h1>
+                <div className="blog-img" key={imgKey}>
+                  <img src={item.attrs.src} alt={item.attrs.alt || ""} />
+                </div>
               );
             }
             return null;
