@@ -76,10 +76,15 @@ export default function Layouts({ userRole, userInfos }) {
                 </RequireAuth>
               }
             />
-            <Route
+            {/* <Route
               exact
               path="/"
               element={<Navigate to="/dashboard" replace={true} />}
+            /> */}
+            <Route
+              exact
+              path="/"
+              element={<Navigate to="/symptom-table" replace={true} />}
             />
             {/* notification page */}
             <Route
@@ -127,7 +132,10 @@ export default function Layouts({ userRole, userInfos }) {
             <Route
               path="/symptom-temp/:symptomIdTemp/approve"
               element={
-                <RequireAuth userRole={userRole} allowedRoles={["admin"]}>
+                <RequireAuth
+                  userRole={userRole}
+                  allowedRoles={["admin", "head-doctor"]}
+                >
                   <ApproveSymptom userRole={userRole} userInfos={userInfos} />
                 </RequireAuth>
               }

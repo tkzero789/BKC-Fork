@@ -46,14 +46,14 @@ export default function News() {
         <section className="news w-100">
           <div className="content-container">
             <div className="news-wrapper">
-              <div className="news-header">Newest blogs</div>
+              <div className="news-header">Tin tức mới nhất</div>
               <div className="news-section">
                 <div className="c-7 m-12">
                   <div className="news-section-left">
                     <div className="news-left-wrapper">
                       <NavLink
                         className="news-link-left"
-                        to={`/blog/${mostRecentBlog.id}/view`}
+                        to={`/view-blog-list/${mostRecentBlog.id}`}
                       >
                         <div className="img-container-left">
                           <img

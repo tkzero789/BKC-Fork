@@ -74,7 +74,8 @@ export default function ArticlePatientView({ userRole, userInfos }) {
             <hr></hr>
             <div className="row">
               <p className="d-flex justify-content-end">
-                Bài viết được cung cấp bởi {article.createInfos.doctorCreated}
+                Bài viết được cung cấp bởi BS{" "}
+                {article.createInfos.doctorCreated}
               </p>
               {userRole && (
                 <div className="col-6 d-grid gap-2 justify-content-start">

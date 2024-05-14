@@ -109,10 +109,10 @@ export default function MainNav() {
                         dropdownVisible ? "visible" : "hidden"
                       }`}
                     >
-                      <NavLink to="/dashboard">
+                      {/* <NavLink to="/dashboard">
                         <SpaceDashboardIcon />
                         <span>Dashboard</span>
-                      </NavLink>
+                      </NavLink> */}
                       <NavLink>
                         <SettingsIcon />
                         <span>Cài đặt</span>

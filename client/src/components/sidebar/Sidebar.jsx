@@ -60,12 +60,12 @@ export default function Sidebar() {
 
       <div className="center">
         <ul>
-          <NavLink to="/dashboard" activeclassname="active">
+          {/* <NavLink to="/dashboard" activeclassname="active">
             <li>
               <GridViewIcon className="icon" />
               <span>Tổng hợp</span>
             </li>
-          </NavLink>
+          </NavLink> */}
           <NavLink to="/symptom-table" activeclassname="active">
             <li>
               <MonitorHeartIcon className="icon" />
@@ -112,12 +112,12 @@ export default function Sidebar() {
               <span>Blogs</span>
             </li>
           </NavLink>
-          <NavLink to="">
+          {/* <NavLink to="">
             <li>
               <SettingsApplicationsIcon className="icon" />
               <span>Cài đặt</span>
             </li>
-          </NavLink>
+          </NavLink> */}
           <NavLink to="" onClick={handleSignOut}>
             <li>
               <ExitToAppIcon className="icon" />

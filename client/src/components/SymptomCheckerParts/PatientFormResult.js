@@ -6,6 +6,8 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
   const [isProcessing, setIsProcessing] = useState(true);
   // set disease choosing from user, it is the first disease in patientResult (sorted) initially
   const [choosingDisease, setChoosingDisease] = useState({});
+  // get all articles form DB related to patient diseases
+  const [articles, setArticles] = useState([]);
   // get all articles form DB related to choosingDisease
   const [diseaseArticles, setDiseaseArticles] = useState([]);
   // set article to display on screen, it is the first article of choosingDisease initially
@@ -14,24 +16,41 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
   const [part, setPart] = useState(1);
 
   useEffect(() => {
-    if (patientResult.length > 0) chooseDisease(patientResult[0]);
+    if (patientResult.length > 0) {
+      const articleIds = patientResult
+        .flatMap((disease) => disease.relatedArticles)
+        .map((article) => article.id);
+      axios
+        .post(`http://localhost:5000/article/by-ids`, { ids: articleIds })
+        .then((res) => {
+          setArticles(res.data);
+        })
+        .catch((err) => {
+          const message = `Có lỗi xảy ra: ${err}`;
+          window.alert(message);
+        });
+    }
   }, [patientResult]);
 
+  useEffect(() => {
+    chooseDisease(patientResult[0]);
+  }, [articles]);
+
   function chooseDisease(disease) {
-    setChoosingDisease(disease);
-    const articleIds = disease.relatedArticles.map((article) => article.id);
-    axios
-      .post(`http://localhost:5000/article/by-ids`, { ids: articleIds })
-      .then((res) => {
-        setDiseaseArticles(res.data);
-        if (res.data.length > 0) {
-          setChoosingArticle(res.data[0]);
-        }
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
+    const diseaseArticles = articles.filter(
+      (article) => article.diseaseId === disease.id
+    );
+    setDiseaseArticles(diseaseArticles);
+    if (diseaseArticles.length > 0) {
+      const displayArticle = diseaseArticles.find(
+        (art) => art.isDisplay === true
+      );
+      if (displayArticle) {
+        chooseArticle(displayArticle);
+      } else {
+        chooseArticle(diseaseArticles[0]);
+      }
+    }
     setIsProcessing(false);
   }
 
@@ -50,9 +69,6 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
         </h5>
         <h6 className="fw-med text-blue-2" style={{ marginBottom: "1px" }}>
           Chuyên khoa: {disease.medSpecialty}
-        </h6>
-        <h6 className="fw-med text-blue-2" style={{ marginBottom: "1px" }}>
-          Điểm khớp mô tả: {disease.matchedScore}
         </h6>
       </div>
     );
@@ -169,18 +185,18 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
     );
   }
 
-  function updateStarField(newRating) {
-    setFeedback({ ...feedback, stars: newRating });
-  }
+  // function updateStarField(newRating) {
+  //   setFeedback({ ...feedback, stars: newRating });
+  // }
 
-  function updateCmtField(event) {
-    setFeedback({ ...feedback, comment: event.target.value });
-  }
+  // function updateCmtField(event) {
+  //   setFeedback({ ...feedback, comment: event.target.value });
+  // }
 
-  function submitFeedback(e) {
-    e.preventDefault();
-    setFeedback({ ...feedback, isSent: true });
-  }
+  // function submitFeedback(e) {
+  //   e.preventDefault();
+  //   setFeedback({ ...feedback, isSent: true });
+  // }
 
   return (
     <div>
@@ -188,33 +204,28 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
         <h4>Kết quả gợi ý chẩn đoán dựa trên thông tin bạn cung cấp</h4>
       </div>
 
-      {isProcessing ? (
-        <div className="row pt-3 pb-3">
-          <p>Đang xử lý kết quả...</p>
+      <div className="row pt-3 pb-3">
+        <div className="col-4">
+          {patientResult.map((disease) => (
+            <SuitDiseases disease={disease} key={disease.id} />
+          ))}
         </div>
-      ) : (
-        <div className="row pt-3 pb-3">
-          <div className="col-4">
-            {patientResult.map((disease) => (
-              <SuitDiseases disease={disease} key={disease.id} />
-            ))}
-          </div>
-          <div className="col-8 row">
-            <div className="col-12">
-              {diseaseArticles.length > 0 && (
-                <DisplayedArticle
-                  article={choosingArticle}
-                  key={choosingArticle.id}
-                />
-              )}
-              {diseaseArticles.length > 1 &&
-                diseaseArticles
-                  .filter((article) => article.id !== choosingArticle.id)
-                  .map((article) => (
-                    <OtherArticle article={article} key={article.id} />
-                  ))}
+        <div className="col-8 row">
+          <div className="col-12">
+            {diseaseArticles.length > 0 && (
+              <DisplayedArticle
+                article={choosingArticle}
+                key={choosingArticle.id}
+              />
+            )}
+            {diseaseArticles.length > 1 &&
+              diseaseArticles
+                .filter((article) => article.id !== choosingArticle.id)
+                .map((article) => (
+                  <OtherArticle article={article} key={article.id} />
+                ))}
 
-              <div className="col-12 mb-3 p-3 box-shadow-1">
+            {/* <div className="col-12 mb-3 p-3 box-shadow-1">
                 <h4
                   className="fw-med text-blue-2 d-flex justify-content-center pb-3"
                   style={{ marginBottom: "1px" }}
@@ -248,11 +259,10 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
                     Gửi feedback
                   </button>
                 </div>
-              </div>
-            </div>
+              </div> */}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

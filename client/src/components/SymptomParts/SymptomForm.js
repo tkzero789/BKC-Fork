@@ -181,7 +181,7 @@ export default function SymptomForm({
         />
       </div>
       <div className="form-group row pb-5">
-        <h4 className="card-title text-body col-3">Vị trí:</h4>
+        <h4 className="card-title text-body col-3">Vị trí trên mô hình:</h4>
         <select
           name="position"
           value={symptom.position}

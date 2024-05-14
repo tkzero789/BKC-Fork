@@ -1,6 +1,9 @@
 const express = require("express");
 const appointmentRoutes = express.Router();
 const dbo = require("../db/conn");
+const { Vonage } = require("@vonage/server-sdk");
+const VONAGE_API_KEY = process.env.VONAGE_API_KEY;
+const VONAGE_API_SECRET = process.env.VONAGE_API_SECRET;
 
 appointmentRoutes.route("/appointment").get(async function (req, res) {
   try {
@@ -83,5 +86,68 @@ appointmentRoutes.route("/appointment/:id").delete(async function (req, res) {
     throw err;
   }
 });
+
+appointmentRoutes
+  .route("/appointment/send-otp")
+  .post(async function (req, res) {
+    try {
+      const vonage = new Vonage({
+        apiKey: VONAGE_API_KEY,
+        apiSecret: VONAGE_API_SECRET,
+      });
+      const randomNum = Math.floor(Math.random() * 1000000);
+      const otp = randomNum.toString().padStart(6, "0");
+
+      const from = "Vonage APIs";
+      const to = req.body.phoneNumber;
+      const text = otp;
+      const response = await vonage.sms
+        .send({ to, from, text })
+        .catch((err) => {
+          throw new Error("There was an error sending the messages.", err);
+        });
+
+      if (response) {
+        console.log("Message sent successfully");
+        console.log(response);
+        const db_connect = await dbo.getDb("mern_hospital");
+        const myobj = {
+          phoneNumber: req.body.phoneNumber,
+          otp: otp,
+          expiresAt: Date.now() + 5 * 60 * 1000,
+        };
+        const result = await db_connect.collection("otps").insertOne(myobj);
+        res.json({
+          message: "OTP sent successfully",
+          result: result,
+          otp: otp,
+        });
+      } else {
+        throw new Error("There was an error sending the messages.");
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Error sending OTP" });
+    }
+  });
+
+appointmentRoutes
+  .route("/appointment/verify-otp")
+  .post(async function (req, res) {
+    try {
+      const db_connect = await dbo.getDb("mern_hospital");
+      console.log(req.body.phoneNumber, req.body.otp);
+      const result = await db_connect.collection("otps").findOne(myquery);
+      if (result) {
+        const now = Date.now();
+        if (now > result.expiresAt) {
+          return res.json({ message: "OTP expired" });
+        }
+        res.json(result);
+      } else return res.json({ message: "Incorrect OTP" });
+    } catch (err) {
+      console.error(err);
+    }
+  });
 
 module.exports = appointmentRoutes;

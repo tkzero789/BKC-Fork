@@ -115,7 +115,6 @@ symptomRoutes
           name: req.body.name,
           position: req.body.position,
           categories: req.body.categories,
-          diseaseUsedIds: reqSymptom.diseaseUsedIds,
           createInfos: req.body.createInfos,
           status: req.body.status,
         };
@@ -282,7 +281,6 @@ symptomRoutes
         name: reqSymptom.name,
         position: reqSymptom.position,
         categories: reqSymptom.categories,
-        diseaseUsedIds: reqSymptom.diseaseUsedIds,
         createInfos: reqSymptom.createInfos,
         status: reqSymptom.status,
         doctorReqID: reqSymptom.doctorReqID,

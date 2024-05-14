@@ -30,7 +30,7 @@ const ViewSpecificBlog = () => {
   const blog = blogs.find((blog) => blog.id === id);
 
   if (!blog) {
-    return <div>Blog not found</div>;
+    return <div>Loading...</div>;
   }
 
   return (

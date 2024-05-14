@@ -68,7 +68,7 @@ export default function SymptomTable({ userRole, userInfos }) {
                 to={`/symptom-temp/${symptom.idTemp}/approve`}
               >
                 <div className="checkButton">
-                  {userRole === "admin" ? "Duyệt" : "Xem"}
+                  {userRole === "admin" ? "Xét duyệt" : "Xem"}
                 </div>
               </NavLink>
             )}

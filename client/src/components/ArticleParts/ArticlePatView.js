@@ -49,7 +49,7 @@ export default function ArticlePatView({ article, setIsPatView }) {
               </button>
             </div>
             <p className="col-6 d-grid gap-2 justify-content-end">
-              Bài viết được cung cấp bởi {article.createInfos.doctorCreated}
+              Bài viết được cung cấp bởi BS {article.createInfos.doctorCreated}
             </p>
           </div>
         </div>

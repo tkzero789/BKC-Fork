@@ -14,6 +14,9 @@ export default function ApptForm({
   editMode,
   closeModal,
   confirmSetAppt,
+  otp,
+  setOtp,
+  sendOTP,
 }) {
   // --- DOB: Start ---
   const [date, setDate] = useState("");
@@ -526,6 +529,23 @@ export default function ApptForm({
                       </>
                     ) : null}
                   </div>
+                  <div className={`appt-modal-data`}>
+                    <>
+                      <span>Nhập mã OTP gửi qua SĐT:</span>
+                      <input
+                        className="appt-input"
+                        type="text"
+                        placeholder="SMS OTP"
+                        id="otp"
+                        name="otp"
+                        value={otp}
+                        readOnly={!editMode}
+                        required
+                        onChange={(e) => setOtp(e.target.value)}
+                      />
+                    </>
+                  </div>
+
                   <hr style={{ marginTop: "3rem" }} />
                   <div className="attention-text">
                     <p>
@@ -538,7 +558,14 @@ export default function ApptForm({
                     <button type="button" onClick={closeModal}>
                       Quay lại
                     </button>
-                    <button type="button" onClick={confirmSetAppt}>
+                    <button type="button" onClick={sendOTP}>
+                      Nhận mã xác thực
+                    </button>
+                    <button
+                      type="button"
+                      disabled={otp.length !== 6}
+                      onClick={confirmSetAppt}
+                    >
                       Đăng ký khám
                     </button>{" "}
                   </div>
