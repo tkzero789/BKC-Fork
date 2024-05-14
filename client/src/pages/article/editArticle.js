@@ -60,7 +60,9 @@ export default function EditArticle({ userRole, userInfos }) {
   // get article by articleId
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/article/${articleId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/article/${articleId}`
+      )
       .then((res) => {
         const dbArticle = res.data;
         if (!dbArticle) {
@@ -128,7 +130,9 @@ export default function EditArticle({ userRole, userInfos }) {
       try {
         if (origTitle !== article.title) {
           await axios
-            .get(`http://localhost:5000/article/${article.title}`)
+            .get(
+              `https://symptom-checker-with-mern-stack.onrender.com/article/${article.title}`
+            )
             .then((res) => {
               if (res.data) {
                 throw new Error(
@@ -139,7 +143,11 @@ export default function EditArticle({ userRole, userInfos }) {
         }
         // Edit article
         axios
-          .post(`http://localhost:5000/article-temp/add/`, article, apiConfig)
+          .post(
+            `https://symptom-checker-with-mern-stack.onrender.com/article-temp/add/`,
+            article,
+            apiConfig
+          )
           .then((res) => {
             if (res.data && res.data.message === "Article already exists") {
               throw new Error(
@@ -150,7 +158,7 @@ export default function EditArticle({ userRole, userInfos }) {
           });
         // Create notification to head-doctor
         const resId = await axios.post(
-          `http://localhost:5000/user/medspec-hdoctor-id`,
+          `https://symptom-checker-with-mern-stack.onrender.com/user/medspec-hdoctor-id`,
           { medSpecialty: userInfos.medSpecialty }
         );
         const hdoctorID = resId.data;
@@ -172,7 +180,11 @@ export default function EditArticle({ userRole, userInfos }) {
           status: "Chưa xem",
         };
         await axios
-          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .post(
+            "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+            notif,
+            apiConfig
+          )
           .then((res) => {
             console.log("Notification created", res.data);
           });

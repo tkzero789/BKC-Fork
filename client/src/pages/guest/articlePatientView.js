@@ -10,7 +10,9 @@ export default function ArticlePatientView({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/article/${articleId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/article/${articleId}`
+      )
       .then((res) => {
         const dbarticle = res.data;
         if (!dbarticle) {

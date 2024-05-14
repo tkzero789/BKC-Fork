@@ -11,7 +11,9 @@ export default function ViewBlog({ userRole, userInfos }) {
   // Fetch blog content based on id
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/blog/${blogId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/blog/${blogId}`
+      )
       .then((res) => {
         setBlog(res.data);
       })
@@ -24,9 +26,12 @@ export default function ViewBlog({ userRole, userInfos }) {
   // Update blog status
   function updateStatus(newStatus) {
     axios
-      .post(`http://localhost:5000/blog/update/${blogId}`, {
-        status: newStatus,
-      })
+      .post(
+        `https://symptom-checker-with-mern-stack.onrender.com/blog/update/${blogId}`,
+        {
+          status: newStatus,
+        }
+      )
       .then((res) => {
         setBlog(res.data);
       })
@@ -40,7 +45,9 @@ export default function ViewBlog({ userRole, userInfos }) {
   // Delete a blog from database
   const deleteBlog = () => {
     axios
-      .delete(`http://localhost:5000/blog/${blogId}`)
+      .delete(
+        `https://symptom-checker-with-mern-stack.onrender.com/blog/${blogId}`
+      )
       .then((res) => {
         navigate("/blog-table");
       })

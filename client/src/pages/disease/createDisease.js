@@ -50,7 +50,7 @@ export default function CreateDisease({ userRole, userInfos }) {
   // get symptoms from db
   useEffect(() => {
     axios
-      .get("http://localhost:5000/symptom")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/symptom")
       .then((res) => {
         setDbSymps(res.data);
       })
@@ -172,7 +172,11 @@ export default function CreateDisease({ userRole, userInfos }) {
     try {
       // Create disease
       await axios
-        .post("http://localhost:5000/disease-temp/add", disease, apiConfig)
+        .post(
+          "https://symptom-checker-with-mern-stack.onrender.com/disease-temp/add",
+          disease,
+          apiConfig
+        )
         .then((res) => {
           if (res.data && res.data.message === "Disease already exists") {
             throw new Error("Căn bệnh cùng tên đang được người khác thêm vào!");
@@ -198,7 +202,11 @@ export default function CreateDisease({ userRole, userInfos }) {
         status: "Chưa xem",
       };
       await axios
-        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .post(
+          "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+          notif,
+          apiConfig
+        )
         .then((res) => {
           console.log("Notification created", res.data);
         });

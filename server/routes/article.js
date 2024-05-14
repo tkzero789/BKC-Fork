@@ -197,7 +197,7 @@ articleRoutes
         throw new Error("No image uploaded");
       }
       res.json({
-        link: `http://localhost:5000/uploads/${uploadedImage.filename}`,
+        link: `https://symptom-checker-with-mern-stack.onrender.com/uploads/${uploadedImage.filename}`,
       });
     } catch (err) {
       throw err;

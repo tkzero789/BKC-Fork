@@ -10,7 +10,7 @@ export default function BlogTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/blog")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/blog")
       .then((res) => {
         const reverseData = res.data.reverse();
         const reverseDataWithNo = reverseData.map((item, index) => ({

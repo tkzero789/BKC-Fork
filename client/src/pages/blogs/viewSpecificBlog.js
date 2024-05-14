@@ -12,7 +12,7 @@ const ViewSpecificBlog = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/blog")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/blog")
       .then((res) => {
         setTimeout(() => {
           setBlogs(res.data);

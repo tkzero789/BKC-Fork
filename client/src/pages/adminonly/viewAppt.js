@@ -20,7 +20,9 @@ export default function ViewAppt() {
   useEffect(() => {
     console.log(apptId);
     axios
-      .get(`http://localhost:5000/appointment/${apptId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/appointment/${apptId}`
+      )
       .then((res) => {
         setAppt(res.data);
       })
@@ -33,9 +35,12 @@ export default function ViewAppt() {
   function updateStatus(newStatus) {
     console.log(newStatus);
     axios
-      .post(`http://localhost:5000/appointment/update/${apptId}`, {
-        status: newStatus,
-      })
+      .post(
+        `https://symptom-checker-with-mern-stack.onrender.com/appointment/update/${apptId}`,
+        {
+          status: newStatus,
+        }
+      )
       .catch((err) => {
         const message = `Có lỗi xảy ra: ${err}`;
         window.alert(message);

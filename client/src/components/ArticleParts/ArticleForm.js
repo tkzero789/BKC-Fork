@@ -53,7 +53,7 @@ const ArticleForm = ({ article, setArticle, mode }) => {
     const formData = new FormData();
     formData.append("image", event.target.files[0]);
     const response = await axios.post(
-      `http://localhost:5000/article/upload`,
+      `https://symptom-checker-with-mern-stack.onrender.com/article/upload`,
       formData,
       {
         headers: {
@@ -125,7 +125,7 @@ const ArticleForm = ({ article, setArticle, mode }) => {
     const formData = new FormData();
     formData.append("image", event.target.files[0]);
     const response = await axios.post(
-      `http://localhost:5000/article/upload`,
+      `https://symptom-checker-with-mern-stack.onrender.com/article/upload`,
       formData,
       {
         headers: {

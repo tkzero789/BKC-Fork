@@ -23,7 +23,9 @@ export default function ArticlesByDisease({ userInfos }) {
   // get disease from DB by diseaseId
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease/${diseaseId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/disease/${diseaseId}`
+      )
       .then((res) => {
         const disease = res.data;
         setDisease(disease);
@@ -45,7 +47,7 @@ export default function ArticlesByDisease({ userInfos }) {
       // delete article in disease
       axios
         .post(
-          `http://localhost:5000/disease/${diseaseId}/delete-article/${articleId}`
+          `https://symptom-checker-with-mern-stack.onrender.com/disease/${diseaseId}/delete-article/${articleId}`
         )
         .then((res) => {
           console.log(res.data);
@@ -56,7 +58,9 @@ export default function ArticlesByDisease({ userInfos }) {
         });
       // delete article
       axios
-        .delete(`http://localhost:5000/article/${articleId}`)
+        .delete(
+          `https://symptom-checker-with-mern-stack.onrender.com/article/${articleId}`
+        )
         .then((res) => {
           console.log(res.data);
         })

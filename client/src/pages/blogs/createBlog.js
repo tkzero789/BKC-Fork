@@ -102,7 +102,10 @@ const CreateBlog = ({ userInfos }) => {
     };
 
     try {
-      await axios.post("http://localhost:5000/blog/add", updatedBlog);
+      await axios.post(
+        "https://symptom-checker-with-mern-stack.onrender.com/blog/add",
+        updatedBlog
+      );
       setBlog(updatedBlog);
     } catch (error) {
       console.log(error);
@@ -125,7 +128,7 @@ const CreateBlog = ({ userInfos }) => {
     const formData = new FormData();
     formData.append("image", event.target.files[0]);
     const response = await axios.post(
-      `http://localhost:5000/blog/upload`,
+      `https://symptom-checker-with-mern-stack.onrender.com/blog/upload`,
       formData,
       {
         headers: {

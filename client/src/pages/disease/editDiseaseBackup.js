@@ -46,7 +46,9 @@ export default function EditDisease({ userInfos }) {
   // this will set the state of chosen ones checked before the process starts
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease/${diseaseId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/disease/${diseaseId}`
+      )
       .then((res) => {
         console.log(res.data);
         const dbdisease = res.data;
@@ -87,7 +89,7 @@ export default function EditDisease({ userInfos }) {
   // get symptoms from DB
   useEffect(() => {
     axios
-      .get("http://localhost:5000/symptom")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/symptom")
       .then((res) => {
         setDbSymps(res.data);
       })
@@ -250,7 +252,7 @@ export default function EditDisease({ userInfos }) {
       for (const editedSymptom of editedSymptoms) {
         axios
           .post(
-            `http://localhost:5000/symptom/update-from-disease/${editedSymptom.id}`,
+            `https://symptom-checker-with-mern-stack.onrender.com/symptom/update-from-disease/${editedSymptom.id}`,
             editedSymptom
           )
           .then((res) => {
@@ -267,7 +269,10 @@ export default function EditDisease({ userInfos }) {
     if (newSymptoms.length > 0) {
       for (const newSymptom of newSymptoms) {
         axios
-          .post("http://localhost:5000/symptom/add", newSymptom)
+          .post(
+            "https://symptom-checker-with-mern-stack.onrender.com/symptom/add",
+            newSymptom
+          )
           .then((res) => {
             console.log("Symptom created");
             console.log(res.data);
@@ -281,7 +286,10 @@ export default function EditDisease({ userInfos }) {
     // update disease
     const updateDisease = { ...disease };
     axios
-      .post(`http://localhost:5000/disease/update/${diseaseId}`, updateDisease)
+      .post(
+        `https://symptom-checker-with-mern-stack.onrender.com/disease/update/${diseaseId}`,
+        updateDisease
+      )
       .then((res) => {
         console.log("Disease edited", res.data);
         setDisease({

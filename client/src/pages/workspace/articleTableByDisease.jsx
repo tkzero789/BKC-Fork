@@ -21,10 +21,10 @@ export default function ArticleTableByDisease({ userRole, userInfos }) {
     async function fetchData() {
       try {
         const articleRes = await axios.get(
-          `http://localhost:5000/article/by-disease/${diseaseId}`
+          `https://symptom-checker-with-mern-stack.onrender.com/article/by-disease/${diseaseId}`
         );
         const tempArticleRes = await axios.get(
-          `http://localhost:5000/article-temp/by-disease/${diseaseId}`,
+          `https://symptom-checker-with-mern-stack.onrender.com/article-temp/by-disease/${diseaseId}`,
           apiConfig
         );
         setArticles(articleRes.data);

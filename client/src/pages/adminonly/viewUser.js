@@ -23,7 +23,9 @@ export default function ViewUser() {
   useEffect(() => {
     console.log(userId);
     axios
-      .get(`http://localhost:5000/user/${userId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/user/${userId}`
+      )
       .then((res) => {
         setUser(res.data);
       })
@@ -35,9 +37,12 @@ export default function ViewUser() {
 
   function updateStatus(newStatus) {
     axios
-      .post(`http://localhost:5000/user/update-status/${userId}`, {
-        status: newStatus,
-      })
+      .post(
+        `https://symptom-checker-with-mern-stack.onrender.com/user/update-status/${userId}`,
+        {
+          status: newStatus,
+        }
+      )
       .catch((err) => {
         const message = `Có lỗi xảy ra: ${err}`;
         window.alert(message);
@@ -47,10 +52,14 @@ export default function ViewUser() {
 
   function confirmDelete() {
     if (window.confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) {
-      axios.delete(`http://localhost:5000/user/${userId}`).catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
+      axios
+        .delete(
+          `https://symptom-checker-with-mern-stack.onrender.com/user/${userId}`
+        )
+        .catch((err) => {
+          const message = `Có lỗi xảy ra: ${err}`;
+          window.alert(message);
+        });
     }
   }
 

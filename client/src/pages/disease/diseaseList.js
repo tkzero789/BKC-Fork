@@ -8,7 +8,7 @@ export default function DiseaseList({ userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease/`)
+      .get(`https://symptom-checker-with-mern-stack.onrender.com/disease/`)
       .then((res) => {
         const diseases = res.data;
         setDiseases(diseases);
@@ -23,7 +23,9 @@ export default function DiseaseList({ userInfos }) {
   async function onDelete(id) {
     if (window.confirm("Bạn có chắc muốn xóa căn bệnh này?")) {
       axios
-        .delete(`http://localhost:5000/disease/${id}`)
+        .delete(
+          `https://symptom-checker-with-mern-stack.onrender.com/disease/${id}`
+        )
         .then(() => {
           const newDiseases = diseases.filter((disease) => disease.id !== id);
           setDiseases(newDiseases);

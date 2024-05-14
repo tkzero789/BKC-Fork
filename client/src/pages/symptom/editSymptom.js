@@ -53,7 +53,9 @@ export default function EditSymptom({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/symptom/${symptomId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/symptom/${symptomId}`
+      )
       .then((res) => {
         const dbsymptom = res.data;
         if (!dbsymptom) {
@@ -127,7 +129,9 @@ export default function EditSymptom({ userRole, userInfos }) {
     try {
       if (origName !== symptom.name) {
         await axios
-          .get(`http://localhost:5000/symptom/${symptom.name}`)
+          .get(
+            `https://symptom-checker-with-mern-stack.onrender.com/symptom/${symptom.name}`
+          )
           .then((res) => {
             if (res.data) {
               throw new Error(
@@ -139,7 +143,7 @@ export default function EditSymptom({ userRole, userInfos }) {
       // Edit symptom
       await axios
         .post(
-          `http://localhost:5000/symptom/update/${symptomId}`,
+          `https://symptom-checker-with-mern-stack.onrender.com/symptom/update/${symptomId}`,
           { ...symptom, status: "Approved" },
           apiConfig
         )
@@ -147,7 +151,9 @@ export default function EditSymptom({ userRole, userInfos }) {
           console.log("Symptom edited", res.data);
         });
       // Create notification
-      const resIds = await axios.get(`http://localhost:5000/user/doctor-ids`);
+      const resIds = await axios.get(
+        `https://symptom-checker-with-mern-stack.onrender.com/user/doctor-ids`
+      );
       const doctorIds = resIds.data;
       const notif = {
         id: uuidv4(),
@@ -167,7 +173,11 @@ export default function EditSymptom({ userRole, userInfos }) {
         status: "Chưa xem",
       };
       await axios
-        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .post(
+          "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+          notif,
+          apiConfig
+        )
         .then((res) => {
           console.log("Notification created", res.data);
         });
@@ -222,7 +232,11 @@ export default function EditSymptom({ userRole, userInfos }) {
         doctorReqID: userInfos.doctorID,
       };
       await axios
-        .post(`http://localhost:5000/symptom-temp/add`, editedSymp, apiConfig)
+        .post(
+          `https://symptom-checker-with-mern-stack.onrender.com/symptom-temp/add`,
+          editedSymp,
+          apiConfig
+        )
         .then((res) => {
           if (res.data && res.data.message === "Symptom already exists") {
             throw new Error(
@@ -250,7 +264,11 @@ export default function EditSymptom({ userRole, userInfos }) {
         status: "Chưa xem",
       };
       await axios
-        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .post(
+          "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+          notif,
+          apiConfig
+        )
         .then((res) => {
           console.log("Notification created", res.data);
         });

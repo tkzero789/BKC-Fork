@@ -39,7 +39,9 @@ export default function ViewSymptom({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/symptom/${symptomId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/symptom/${symptomId}`
+      )
       .then((res) => {
         const dbsymptom = res.data;
         console.log(dbsymptom);
@@ -61,7 +63,10 @@ export default function ViewSymptom({ userRole, userInfos }) {
     e.preventDefault();
     if (window.confirm("Xóa căn bệnh này trong bộ nhớ chính?")) {
       axios
-        .delete(`http://localhost:5000/symptom/${symptomId}`, apiConfig)
+        .delete(
+          `https://symptom-checker-with-mern-stack.onrender.com/symptom/${symptomId}`,
+          apiConfig
+        )
         .catch((err) => {
           const message = `Có lỗi xảy ra: ${err}`;
           window.alert(message);

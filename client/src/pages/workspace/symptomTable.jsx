@@ -12,7 +12,7 @@ export default function SymptomTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/symptom/`)
+      .get(`https://symptom-checker-with-mern-stack.onrender.com/symptom/`)
       .then((res) => {
         const symptoms = res.data;
         setSymptoms(symptoms);
@@ -25,9 +25,12 @@ export default function SymptomTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/symptom-temp/`, {
-        headers: { Authorization: `Bearer ${userToken}` },
-      })
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/symptom-temp/`,
+        {
+          headers: { Authorization: `Bearer ${userToken}` },
+        }
+      )
       .then((res) => {
         const tempSymptoms = res.data;
         setTempSymptoms(tempSymptoms);

@@ -118,7 +118,9 @@ const EditBlog = ({ userInfos }) => {
   useEffect(() => {
     console.log(blogId);
     axios
-      .get(`http://localhost:5000/blog/${blogId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/blog/${blogId}`
+      )
       .then((res) => {
         setBlog(res.data);
         if (editor) {
@@ -152,7 +154,7 @@ const EditBlog = ({ userInfos }) => {
 
     try {
       await axios.post(
-        `http://localhost:5000/blog/edit/${blogId}`,
+        `https://symptom-checker-with-mern-stack.onrender.com/blog/edit/${blogId}`,
         updatedBlog
       );
       setBlog(updatedBlog);
@@ -178,7 +180,7 @@ const EditBlog = ({ userInfos }) => {
     const formData = new FormData();
     formData.append("image", event.target.files[0]);
     const response = await axios.post(
-      `http://localhost:5000/blog/upload`,
+      `https://symptom-checker-with-mern-stack.onrender.com/blog/upload`,
       formData,
       {
         headers: {

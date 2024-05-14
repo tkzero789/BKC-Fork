@@ -8,7 +8,7 @@ export default function News() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/blog")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/blog")
       .then((res) => {
         const blogData = res.data
           .filter((blog) => blog.status === "Accepted")

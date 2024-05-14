@@ -35,7 +35,9 @@ export default function ViewArticle({ userRole, userInfos }) {
   // get article from DB by articleId
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/article/${articleId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/article/${articleId}`
+      )
       .then((res) => {
         const dbArticle = res.data;
         if (!dbArticle) {
@@ -58,7 +60,7 @@ export default function ViewArticle({ userRole, userInfos }) {
       // delete article in disease
       axios
         .post(
-          `http://localhost:5000/disease/${diseaseId}/delete-article/${articleId}`
+          `https://symptom-checker-with-mern-stack.onrender.com/disease/${diseaseId}/delete-article/${articleId}`
         )
         .catch((err) => {
           const message = `Có lỗi xảy ra: ${err}`;
@@ -66,7 +68,9 @@ export default function ViewArticle({ userRole, userInfos }) {
         });
       // delete article
       axios
-        .delete(`http://localhost:5000/article/${articleId}`)
+        .delete(
+          `https://symptom-checker-with-mern-stack.onrender.com/article/${articleId}`
+        )
         .catch((err) => {
           const message = `Có lỗi xảy ra: ${err}`;
           window.alert(message);
@@ -80,7 +84,7 @@ export default function ViewArticle({ userRole, userInfos }) {
       console.log(apiConfig);
       await axios
         .post(
-          `http://localhost:5000/article/${article.id}/set-isdisplay`,
+          `https://symptom-checker-with-mern-stack.onrender.com/article/${article.id}/set-isdisplay`,
           { diseaseId: article.diseaseId },
           apiConfig
         )

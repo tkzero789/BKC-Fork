@@ -29,7 +29,9 @@ export default function ViewDisease({ userRole, userInfos }) {
   // get disease from DB by diseaseId
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease/${diseaseId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/disease/${diseaseId}`
+      )
       .then((res) => {
         const dbdisease = res.data;
         console.log(dbdisease);
@@ -49,7 +51,7 @@ export default function ViewDisease({ userRole, userInfos }) {
   // get symptoms from DB
   useEffect(() => {
     axios
-      .get("http://localhost:5000/symptom")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/symptom")
       .then((res) => {
         setDbSymps(res.data);
       })
@@ -64,7 +66,9 @@ export default function ViewDisease({ userRole, userInfos }) {
     e.preventDefault();
     if (window.confirm("Bạn có chắc muốn xóa căn bệnh này?")) {
       axios
-        .delete(`http://localhost:5000/disease/${diseaseId}`)
+        .delete(
+          `https://symptom-checker-with-mern-stack.onrender.com/disease/${diseaseId}`
+        )
         .catch((err) => {
           const message = `Có lỗi xảy ra: ${err}`;
           window.alert(message);

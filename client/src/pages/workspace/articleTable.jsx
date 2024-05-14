@@ -16,7 +16,7 @@ export default function ArticleTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/article/`)
+      .get(`https://symptom-checker-with-mern-stack.onrender.com/article/`)
       .then((res) => {
         const articles = res.data;
         setArticles(articles);
@@ -29,7 +29,10 @@ export default function ArticleTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/article-temp/`, apiConfig)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/article-temp/`,
+        apiConfig
+      )
       .then((res) => {
         const articles = res.data;
         setTempArticles(articles);

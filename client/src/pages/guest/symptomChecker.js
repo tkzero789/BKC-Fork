@@ -40,7 +40,7 @@ export default function SymptomChecker() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/disease")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/disease")
       .then((res) => {
         setPatientResult(res.data);
       })
@@ -52,7 +52,7 @@ export default function SymptomChecker() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/symptom")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/symptom")
       .then((res) => {
         setDbSymps(res.data);
       })

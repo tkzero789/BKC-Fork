@@ -74,7 +74,10 @@ export default function Signup() {
       const newUser = { ...user };
       console.log(newUser);
       axios
-        .post("http://localhost:5000/signup", newUser)
+        .post(
+          "https://symptom-checker-with-mern-stack.onrender.com/signup",
+          newUser
+        )
         .then((res) => {
           console.log("User created");
           console.log(res.data);

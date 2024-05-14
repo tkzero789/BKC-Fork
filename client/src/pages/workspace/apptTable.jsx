@@ -10,7 +10,7 @@ export default function ApptTable() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/appointment")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/appointment")
       .then((res) => {
         const reverseData = res.data.reverse();
         const reverseDataWithNo = reverseData.map((item, index) => ({
@@ -27,7 +27,9 @@ export default function ApptTable() {
 
   const deleteAppt = (id) => {
     axios
-      .delete(`http://localhost:5000/appointment/${id}`)
+      .delete(
+        `https://symptom-checker-with-mern-stack.onrender.com/appointment/${id}`
+      )
       .then((res) => {
         setAppts(appts.filter((appt) => appt.id !== id));
       })

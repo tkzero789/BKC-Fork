@@ -16,7 +16,10 @@ export default function NotifTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/notification/${doctorID}`, apiConfig)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/notification/${doctorID}`,
+        apiConfig
+      )
       .then((res) => {
         console.log(res.data);
         const reverseData = res.data.reverse();
@@ -48,7 +51,7 @@ export default function NotifTable({ userRole, userInfos }) {
 
   function viewLink(notif) {
     axios.post(
-      `http://localhost:5000/notification/update-status/${notif.id}`,
+      `https://symptom-checker-with-mern-stack.onrender.com/notification/update-status/${notif.id}`,
       {
         status: "Đã xem",
       },

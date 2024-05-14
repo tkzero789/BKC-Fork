@@ -16,7 +16,7 @@ export default function DiseaseTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease/`)
+      .get(`https://symptom-checker-with-mern-stack.onrender.com/disease/`)
       .then((res) => {
         const diseases = res.data;
         setDiseases(diseases);
@@ -29,7 +29,10 @@ export default function DiseaseTable({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease-temp/`, apiConfig)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/disease-temp/`,
+        apiConfig
+      )
       .then((res) => {
         const tempDiseases = res.data;
         setTempDiseases(tempDiseases);

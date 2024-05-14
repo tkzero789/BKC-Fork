@@ -27,9 +27,12 @@ export default function CreateAppt() {
   async function sendOTP(e) {
     e.preventDefault();
     await axios
-      .post("http://localhost:5000/appointment/send-otp", {
-        phoneNumber: "+84" + appt.phoneNumber.slice(-9),
-      })
+      .post(
+        "https://symptom-checker-with-mern-stack.onrender.com/appointment/send-otp",
+        {
+          phoneNumber: "+84" + appt.phoneNumber.slice(-9),
+        }
+      )
       .then((res) => {
         window.alert("Đã gửi mã xác thực, vui lòng kiểm tra tin nhắn");
       })
@@ -42,10 +45,13 @@ export default function CreateAppt() {
   async function confirmSetAppt(e) {
     e.preventDefault();
     await axios
-      .post("http://localhost:5000/appointment/verify-otp", {
-        phoneNumber: "+84" + appt.phoneNumber.slice(-9),
-        otp: otp,
-      })
+      .post(
+        "https://symptom-checker-with-mern-stack.onrender.com/appointment/verify-otp",
+        {
+          phoneNumber: "+84" + appt.phoneNumber.slice(-9),
+          otp: otp,
+        }
+      )
       .then((res) => {
         if (res.data && res.data.message === "OTP expired") {
           window.alert("Mã xác thực đã hết hiệu lực, vui lòng nhận mã khác");
@@ -69,7 +75,10 @@ export default function CreateAppt() {
     };
 
     await axios
-      .post("http://localhost:5000/appointment/add", updatedAppt)
+      .post(
+        "https://symptom-checker-with-mern-stack.onrender.com/appointment/add",
+        updatedAppt
+      )
       .then((res) => {
         console.log("Appointment set", res.data);
         setAppt({

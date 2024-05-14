@@ -41,7 +41,7 @@ export default function ApproveDisease({ userRole, userInfos }) {
   // get symptoms from db
   useEffect(() => {
     axios
-      .get("http://localhost:5000/symptom")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/symptom")
       .then((res) => {
         setDbSymps(res.data);
       })
@@ -54,7 +54,10 @@ export default function ApproveDisease({ userRole, userInfos }) {
   // get disease from DB temp by diseaseIdTemp
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease-temp/${diseaseIdTemp}`, apiConfig)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/disease-temp/${diseaseIdTemp}`,
+        apiConfig
+      )
       .then((res) => {
         const dbDisease = res.data;
         if (!dbDisease) {
@@ -79,7 +82,7 @@ export default function ApproveDisease({ userRole, userInfos }) {
         // Create disease
         await axios
           .post(
-            `http://localhost:5000/disease/add/`,
+            `https://symptom-checker-with-mern-stack.onrender.com/disease/add/`,
             { ...disease, status: "Approved" },
             apiConfig
           )
@@ -91,7 +94,7 @@ export default function ApproveDisease({ userRole, userInfos }) {
           });
         // Create new notification
         const resIds = await axios.post(
-          `http://localhost:5000/user/medspec-doctor-ids`,
+          `https://symptom-checker-with-mern-stack.onrender.com/user/medspec-doctor-ids`,
           { medSpecialty: disease.medSpecialty }
         );
         const doctorIds = resIds.data;
@@ -113,7 +116,11 @@ export default function ApproveDisease({ userRole, userInfos }) {
           status: "Chưa xem",
         };
         await axios
-          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .post(
+            "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+            notif,
+            apiConfig
+          )
           .then((res) => {
             console.log("Notification created", res.data);
           });
@@ -126,13 +133,13 @@ export default function ApproveDisease({ userRole, userInfos }) {
       try {
         // Update disease
         await axios.post(
-          `http://localhost:5000/disease/update/${disease.id}`,
+          `https://symptom-checker-with-mern-stack.onrender.com/disease/update/${disease.id}`,
           { ...disease, status: "Approved" },
           apiConfig
         );
         // Create notification
         const resIds = await axios.get(
-          `http://localhost:5000/user/medspec-doctor-ids`,
+          `https://symptom-checker-with-mern-stack.onrender.com/user/medspec-doctor-ids`,
           { medSpecialty: disease.medSpecialty }
         );
         const doctorIds = resIds.data;
@@ -154,7 +161,11 @@ export default function ApproveDisease({ userRole, userInfos }) {
           status: "Chưa xem",
         };
         await axios
-          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .post(
+            "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+            notif,
+            apiConfig
+          )
           .then((res) => {
             console.log("Notification created", res.data);
           });
@@ -172,7 +183,7 @@ export default function ApproveDisease({ userRole, userInfos }) {
     if (approved) {
       try {
         axios.delete(
-          `http://localhost:5000/disease-temp/${diseaseIdTemp}`,
+          `https://symptom-checker-with-mern-stack.onrender.com/disease-temp/${diseaseIdTemp}`,
           apiConfig
         );
       } catch (err) {
@@ -183,7 +194,7 @@ export default function ApproveDisease({ userRole, userInfos }) {
       if (window.confirm("Xóa căn bệnh này trong bộ nhớ tạm thời?")) {
         try {
           axios.delete(
-            `http://localhost:5000/disease-temp/${diseaseIdTemp}`,
+            `https://symptom-checker-with-mern-stack.onrender.com/disease-temp/${diseaseIdTemp}`,
             apiConfig
           );
           const notif = {
@@ -210,7 +221,11 @@ export default function ApproveDisease({ userRole, userInfos }) {
             status: "Chưa xem",
           };
           await axios
-            .post("http://localhost:5000/notification/add", notif, apiConfig)
+            .post(
+              "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+              notif,
+              apiConfig
+            )
             .then((res) => {
               console.log("Notification created", res.data);
             });

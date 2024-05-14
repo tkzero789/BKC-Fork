@@ -21,7 +21,10 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
         .flatMap((disease) => disease.relatedArticles)
         .map((article) => article.id);
       axios
-        .post(`http://localhost:5000/article/by-ids`, { ids: articleIds })
+        .post(
+          `https://symptom-checker-with-mern-stack.onrender.com/article/by-ids`,
+          { ids: articleIds }
+        )
         .then((res) => {
           setArticles(res.data);
         })

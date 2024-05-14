@@ -49,7 +49,9 @@ export default function EditDisease({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/disease/${diseaseId}`)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/disease/${diseaseId}`
+      )
       .then((res) => {
         const dbDisease = res.data;
         if (!dbDisease) {
@@ -83,7 +85,7 @@ export default function EditDisease({ userRole, userInfos }) {
   // get symptoms from DB
   useEffect(() => {
     axios
-      .get("http://localhost:5000/symptom")
+      .get("https://symptom-checker-with-mern-stack.onrender.com/symptom")
       .then((res) => {
         setDbSymps(res.data);
       })
@@ -205,7 +207,9 @@ export default function EditDisease({ userRole, userInfos }) {
     try {
       if (origName !== disease.name) {
         await axios
-          .get(`http://localhost:5000/disease/${disease.name}`)
+          .get(
+            `https://symptom-checker-with-mern-stack.onrender.com/disease/${disease.name}`
+          )
           .then((res) => {
             if (res.data) {
               throw new Error(
@@ -216,7 +220,11 @@ export default function EditDisease({ userRole, userInfos }) {
       }
       // Edit disease
       await axios
-        .post(`http://localhost:5000/disease-temp/add`, disease, apiConfig)
+        .post(
+          `https://symptom-checker-with-mern-stack.onrender.com/disease-temp/add`,
+          disease,
+          apiConfig
+        )
         .then((res) => {
           if (res.data && res.data.message === "Disease already exists") {
             throw new Error(
@@ -244,7 +252,11 @@ export default function EditDisease({ userRole, userInfos }) {
         status: "Chưa xem",
       };
       await axios
-        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .post(
+          "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+          notif,
+          apiConfig
+        )
         .then((res) => {
           console.log("Notification created", res.data);
         });

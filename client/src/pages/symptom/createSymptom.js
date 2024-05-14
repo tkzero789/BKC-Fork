@@ -91,7 +91,11 @@ export default function CreateSymptom({ userRole, userInfos }) {
     try {
       // Create new symptom
       await axios
-        .post("http://localhost:5000/symptom-temp/add", symptom, apiConfig)
+        .post(
+          "https://symptom-checker-with-mern-stack.onrender.com/symptom-temp/add",
+          symptom,
+          apiConfig
+        )
         .then((res) => {
           if (res.data && res.data.message === "Symptom already exists") {
             throw new Error(
@@ -119,7 +123,11 @@ export default function CreateSymptom({ userRole, userInfos }) {
         status: "Chưa xem",
       };
       await axios
-        .post("http://localhost:5000/notification/add", notif, apiConfig)
+        .post(
+          "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+          notif,
+          apiConfig
+        )
         .then((res) => {
           console.log("Notification created", res.data);
         });

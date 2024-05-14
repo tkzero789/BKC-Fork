@@ -49,7 +49,10 @@ export default function ApproveSymptom({ userRole, userInfos }) {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/symptom-temp/${symptomIdTemp}/`, apiConfig)
+      .get(
+        `https://symptom-checker-with-mern-stack.onrender.com/symptom-temp/${symptomIdTemp}/`,
+        apiConfig
+      )
       .then((res) => {
         const dbsymptom = res.data;
         if (!dbsymptom) {
@@ -74,7 +77,7 @@ export default function ApproveSymptom({ userRole, userInfos }) {
         // Create symptom
         await axios
           .post(
-            `http://localhost:5000/symptom/add/`,
+            `https://symptom-checker-with-mern-stack.onrender.com/symptom/add/`,
             { ...symptom, status: "Approved" },
             apiConfig
           )
@@ -85,7 +88,9 @@ export default function ApproveSymptom({ userRole, userInfos }) {
             console.log("Symptom created", res.data);
           });
         // Create new notification
-        const resIds = await axios.get(`http://localhost:5000/user/doctor-ids`);
+        const resIds = await axios.get(
+          `https://symptom-checker-with-mern-stack.onrender.com/user/doctor-ids`
+        );
         const doctorIds = resIds.data;
         const notif = {
           id: uuidv4(),
@@ -105,7 +110,11 @@ export default function ApproveSymptom({ userRole, userInfos }) {
           status: "Chưa xem",
         };
         await axios
-          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .post(
+            "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+            notif,
+            apiConfig
+          )
           .then((res) => {
             console.log("Notification created", res.data);
           });
@@ -118,12 +127,14 @@ export default function ApproveSymptom({ userRole, userInfos }) {
       try {
         // Update symptom
         await axios.post(
-          `http://localhost:5000/symptom/update/${symptom.id}`,
+          `https://symptom-checker-with-mern-stack.onrender.com/symptom/update/${symptom.id}`,
           { ...symptom, status: "Approved" },
           apiConfig
         );
         // Create notification
-        const resIds = await axios.get(`http://localhost:5000/user/doctor-ids`);
+        const resIds = await axios.get(
+          `https://symptom-checker-with-mern-stack.onrender.com/user/doctor-ids`
+        );
         const doctorIds = resIds.data;
         const notif = {
           id: uuidv4(),
@@ -143,7 +154,11 @@ export default function ApproveSymptom({ userRole, userInfos }) {
           status: "Chưa xem",
         };
         await axios
-          .post("http://localhost:5000/notification/add", notif, apiConfig)
+          .post(
+            "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+            notif,
+            apiConfig
+          )
           .then((res) => {
             console.log("Notification created", res.data);
           });
@@ -160,7 +175,7 @@ export default function ApproveSymptom({ userRole, userInfos }) {
     if (approved) {
       try {
         axios.delete(
-          `http://localhost:5000/symptom-temp/${symptomIdTemp}`,
+          `https://symptom-checker-with-mern-stack.onrender.com/symptom-temp/${symptomIdTemp}`,
           apiConfig
         );
       } catch (err) {
@@ -171,7 +186,7 @@ export default function ApproveSymptom({ userRole, userInfos }) {
       if (window.confirm("Xóa triệu chứng này trong bộ nhớ tạm thời?")) {
         try {
           axios.delete(
-            `http://localhost:5000/symptom-temp/${symptomIdTemp}`,
+            `https://symptom-checker-with-mern-stack.onrender.com/symptom-temp/${symptomIdTemp}`,
             apiConfig
           );
           const notif = {
@@ -198,7 +213,11 @@ export default function ApproveSymptom({ userRole, userInfos }) {
             status: "Chưa xem",
           };
           await axios
-            .post("http://localhost:5000/notification/add", notif, apiConfig)
+            .post(
+              "https://symptom-checker-with-mern-stack.onrender.com/notification/add",
+              notif,
+              apiConfig
+            )
             .then((res) => {
               console.log("Notification created", res.data);
             });
