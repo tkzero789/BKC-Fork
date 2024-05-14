@@ -6,7 +6,7 @@ require("dotenv").config({ path: "./config.env" });
 const port = process.env.PORT || 5000;
 const app = express();
 app.use(
-  cors({ origin: "https://symptom-checker-with-mern-stack.onrender.com" })
+  cors({ origin: "https://symptom-checker-with-mern-frontend.onrender.com/" })
 );
 app.use(express.json());
 app.use(cookieParser());
