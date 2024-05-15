@@ -1,8 +1,23 @@
 import Footer from "../../components/ForPages/Footer";
+import { Breadcrumbs, Typography } from "@mui/material";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { Link } from "react-router-dom";
 
 const WorkSchedule = () => {
   return (
     <>
+      <div className="content-container">
+        <Breadcrumbs
+          className="breadcrumbs"
+          separator={<NavigateNextIcon fontSize="small" />}
+          aria-label="breadcrumb"
+        >
+          <Link className="text-secondary" to="/home">
+            Trang chủ
+          </Link>
+          ,<Typography className="text-dark">Lịch làm việc</Typography>,
+        </Breadcrumbs>
+      </div>
       <div className="work">
         <div className="content-container">
           <div className="work-wrapper">

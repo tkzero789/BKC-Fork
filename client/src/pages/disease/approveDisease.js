@@ -252,12 +252,12 @@ export default function ApproveDisease({ userRole, userInfos }) {
               <div className="col-3 d-grid gap-2">
                 <button
                   type="button"
-                  className="btn btn-outline-primary"
+                  className="btn btn-outline-secondary"
                   onClick={() => {
                     navigate(-1);
                   }}
                 >
-                  QUAY LẠI
+                  Quay lại
                 </button>
               </div>
               {userRole === "admin" && (
@@ -269,7 +269,7 @@ export default function ApproveDisease({ userRole, userInfos }) {
                       confirmApprove(e);
                     }}
                   >
-                    XÁC NHẬN DUYỆT
+                    Xác nhận duyệt
                   </button>
                 </div>
               )}
@@ -283,7 +283,7 @@ export default function ApproveDisease({ userRole, userInfos }) {
                       confirmDelete(e, false);
                     }}
                   >
-                    XÁC NHẬN XÓA
+                    Xác nhận xoá
                   </button>
                 </div>
               )}

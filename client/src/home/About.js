@@ -8,7 +8,7 @@ export default function About() {
       <section className="about w-100">
         <div className="content-container">
           <div className="about-wrapper">
-            <div className="c-6 m-12">
+            <div className="c-6 md-12">
               <div className="about-section">
                 <div className="about-header">
                   BKCare - Nơi gửi gắm niềm tin sức khỏe
@@ -32,7 +32,7 @@ export default function About() {
                 </div>
               </div>
             </div>
-            <div className="c-6 m-12">
+            <div className="c-6 md-12">
               <div className="about-img">
                 <img
                   className="hospital-img"

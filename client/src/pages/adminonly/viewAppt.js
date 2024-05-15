@@ -143,20 +143,20 @@ export default function ViewAppt() {
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
                 <NavLink
-                  className="btn btn-outline-primary"
+                  className="btn btn-outline-secondary"
                   to={`/appointment-table`}
                 >
-                  QUAY LẠI
+                  Quay lại
                 </NavLink>
               </div>
               <div className="col-3 d-grid gap-2">
                 <button
                   type="button"
-                  className="btn btn-outline-primary"
+                  className="btn btn-success"
                   disabled={appt.status === "Accepted"}
                   onClick={() => updateStatus("Accepted")}
                 >
-                  ĐƯỢC CHẤP NHẬN
+                  Chấp nhận
                 </button>
               </div>
               <div className="col-3 d-grid gap-2">
@@ -166,7 +166,7 @@ export default function ViewAppt() {
                   disabled={appt.status === "Declined"}
                   onClick={() => updateStatus("Declined")}
                 >
-                  BỊ TỪ CHỐI
+                  Từ chối
                 </button>
               </div>
               <div className="col-3 d-grid gap-2">
@@ -176,7 +176,7 @@ export default function ViewAppt() {
                   disabled={appt.status === "Spam"}
                   onClick={() => updateStatus("Spam")}
                 >
-                  ĐÁNH DẤU SPAM
+                  Đánh dấu spam
                 </button>
               </div>
             </div>

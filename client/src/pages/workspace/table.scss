@@ -65,13 +65,46 @@
       background-color: rgba(148, 230, 148, 0.5);
       color: green;
     }
+    &.Approved {
+      background-color: rgba(148, 230, 148, 0.5);
+      color: green;
+    }
     &.Pending {
       background-color: rgba(219, 211, 154, 0.5);
       color: goldenrod;
     }
+    &.Đã-xem {
+      background-color: rgba(219, 219, 219, 0.5);
+      color: rgb(139, 139, 139);
+    }
+    &.Chưa-xem {
+      background-color: rgba(231, 110, 193, 0.5);
+      color: rgb(223, 71, 174);
+    }
     &.Request-edit {
-      background-color: rgba(228, 228, 228, 0.5);
-      color: rgb(119, 119, 119);
+      background-color: rgba(231, 110, 193, 0.5);
+      color: rgb(223, 71, 174);
+    }
+  }
+
+  .rowWithStatus {
+    &.Accepted {
+      background-color: #f1f6fc;
+    }
+    &.Pending {
+      font-weight: var(--roboto-medium-weight);
+      color: black;
+    }
+    &.Đã-xem {
+      background-color: #f1f6fc;
+    }
+    &.Chưa-xem {
+      font-weight: var(--roboto-medium-weight);
+      color: black;
+    }
+    &.Request-edit {
+      font-weight: var(--roboto-medium-weight);
+      color: black;
     }
   }
 
@@ -89,10 +122,14 @@
       padding: 4px 10px;
       border-radius: 5px;
       color: #ffffff;
-      background-color: #006faa;
-      border: 1px solid #006faa;
+      background-color: #008dda;
+      border: 1px solid #008dda;
       font-weight: var(--roboto-medium-weight);
       cursor: pointer;
+
+      &:hover {
+        background-color: darken(#008dda, 10%);
+      }
     }
 
     .deleteButton {
@@ -103,6 +140,10 @@
       border: 1px solid #ff0000;
       font-weight: var(--roboto-medium-weight);
       cursor: pointer;
+
+      &:hover {
+        background-color: darken(#ff0000, 10%);
+      }
     }
 
     .checkButton {
@@ -113,22 +154,26 @@
       border: 1px solid #008b46;
       font-weight: var(--roboto-medium-weight);
       cursor: pointer;
+
+      &:hover {
+        background-color: darken(#008b46, 10%);
+      }
     }
 
     .editButton {
       padding: 4px 10px;
       border-radius: 5px;
       color: #ffffff;
-      background-color: #ff9b04;
-      border: 1px solid #ff9b04;
+      background-color: #e459b8;
+      border: 1px solid #e459b8;
       font-weight: var(--roboto-medium-weight);
       cursor: pointer;
+
+      &:hover {
+        background-color: darken(#e459b8, 10%);
+      }
     }
   }
-}
-
-.cell-blog-title {
-  font-weight: var(--roboto-medium-weight);
 }
 
 // .cell-blog-status-request-edit {

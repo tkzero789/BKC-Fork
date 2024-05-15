@@ -57,7 +57,7 @@ export default function DiseaseName({ disease, setDisease, dbSymps, mode }) {
   return (
     <div>
       <div className="form-group row pb-5">
-        <h4 className="text-blue-2 col-3">TÊN CĂN BỆNH</h4>
+        <h4 className="text-blue-2 col-3">Tên căn bệnh</h4>
         <input
           type="text"
           className="form-control border-primary-subtle col"
@@ -69,7 +69,7 @@ export default function DiseaseName({ disease, setDisease, dbSymps, mode }) {
       </div>
 
       <div className="form-group row pb-5">
-        <h4 className="text-blue-2 col-3">ĐỘ TUỔI</h4>
+        <h4 className="text-blue-2 col-3">Độ tuổi</h4>
         <div className="border border-primary-subtle rounded col-9">
           <p className="m-1">
             {disease.ageRanges.map((ageRange, index) => (
@@ -82,7 +82,7 @@ export default function DiseaseName({ disease, setDisease, dbSymps, mode }) {
       </div>
 
       <div className="form-group row pb-5">
-        <h4 className="text-blue-2 col-3">GIỚI TÍNH</h4>
+        <h4 className="text-blue-2 col-3">Giới tính</h4>
         <div className="border border-primary-subtle rounded col-9">
           <p className="m-1">
             {disease.genders.map((gender, index) => (
@@ -95,7 +95,7 @@ export default function DiseaseName({ disease, setDisease, dbSymps, mode }) {
       </div>
 
       <div className="form-group row pb-5">
-        <h4 className="text-blue-2 col-3">TRIỆU CHỨNG</h4>
+        <h4 className="text-blue-2 col-3">Triệu chứng</h4>
         <div className="border border-primary-subtle rounded col-9">
           <div className="row">
             {chosenSymps.map((symptom) => {
@@ -106,7 +106,7 @@ export default function DiseaseName({ disease, setDisease, dbSymps, mode }) {
       </div>
 
       <div className="form-group row pb-5">
-        <h4 className="text-blue-2 col-3">MÔ TẢ CHI TIẾT</h4>
+        <h4 className="text-blue-2 col-3">Mô tả chi tiết</h4>
         <div className="border border-primary-subtle rounded col">
           {chosenSymps.map((symptom) => {
             return <Details symptom={symptom} key={symptom.name} />;

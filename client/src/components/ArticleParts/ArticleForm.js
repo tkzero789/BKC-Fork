@@ -168,7 +168,7 @@ const ArticleForm = ({ article, setArticle, mode }) => {
   return (
     <div>
       <div className="form-group row pb-5">
-        <h4 className="text-blue-2 col-3">TÊN CĂN BỆNH</h4>
+        <h4 className="text-blue-2 col-3">Tên căn bệnh</h4>
         <input
           type="text"
           className="form-control border-primary-subtle col"
@@ -178,7 +178,7 @@ const ArticleForm = ({ article, setArticle, mode }) => {
         />
       </div>
       <div className="form-group row pb-5">
-        <h4 className="text-blue-2 col-3">TÊN BÀI VIẾT</h4>
+        <h4 className="text-blue-2 col-3">Tên bài viết</h4>
         <input
           type="text"
           className="form-control border-primary-subtle col"
@@ -203,7 +203,7 @@ const ArticleForm = ({ article, setArticle, mode }) => {
                     ></i>
                   )}
 
-                  <h4 className="text-blue-2">THÔNG TIN {info.number}</h4>
+                  <h4 className="text-blue-2">Thông tin {info.number}</h4>
                 </div>
                 <input
                   type="text"
@@ -254,8 +254,8 @@ const ArticleForm = ({ article, setArticle, mode }) => {
           );
         })}
         {mode !== "view" && (
-          <div onClick={addInfoField} className="btn btn-outline-primary">
-            <h4 className="text-blue-2">THÊM THÔNG TIN</h4>
+          <div onClick={addInfoField} className="btn btn-primary">
+            <h5>Thêm thông tin</h5>
           </div>
         )}
       </div>
@@ -274,7 +274,7 @@ const ArticleForm = ({ article, setArticle, mode }) => {
                     ></i>
                   )}
                   <h4 className="text-blue-2">
-                    PHƯƠNG PHÁP {treatment.number}
+                    Phương pháp {treatment.number}
                   </h4>
                 </div>
                 <input
@@ -328,8 +328,8 @@ const ArticleForm = ({ article, setArticle, mode }) => {
           );
         })}
         {mode !== "view" && (
-          <div onClick={addTreatmentField} className="btn btn-outline-primary">
-            <h4 className="text-blue-2">THÊM PHƯƠNG PHÁP CHỮA TRỊ</h4>
+          <div onClick={addTreatmentField} className="btn btn-primary">
+            <h5>Thêm phương pháp chữa trị</h5>
           </div>
         )}
       </div>

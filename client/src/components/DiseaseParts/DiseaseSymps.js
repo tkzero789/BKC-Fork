@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import SearchBarSymp from "../SearchBarSymp/SearchBarSymp";
+import removeAccents from "remove-accents";
 
 export default function DiseaseSymps({ disease, setDisease, dbSymps, mode }) {
   function onCheck(symptomId) {
@@ -16,11 +18,11 @@ export default function DiseaseSymps({ disease, setDisease, dbSymps, mode }) {
     }
   }
 
-  const Symptom = ({ symptom, isChecked, onCheck, key }) => {
+  const Symptom = ({ symptom, isChecked, onCheck }) => {
     return (
-      <div key={key} className="col-3 pb-3">
+      <div className="c-2 pb-3">
         <div className="form">
-          <label style={{ display: "flex" }}>
+          <label className="d-flex align-items-center">
             <input
               type="checkbox"
               style={{ marginRight: "5px" }}
@@ -30,20 +32,44 @@ export default function DiseaseSymps({ disease, setDisease, dbSymps, mode }) {
                 onCheck(symptom.id);
               }}
             />
-            <span className="text-blue-1">
-              <h5 style={{ marginBottom: "1px" }}>{symptom.name}</h5>
-            </span>
+            <p className="text-black-1">
+              <span>{symptom.name}</span>
+            </p>
           </label>
         </div>
       </div>
     );
   };
 
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter symptoms based on search term
+  const filteredSymps = dbSymps.filter((symptom) =>
+    removeAccents(symptom.name)
+      .toLowerCase()
+      .includes(removeAccents(searchTerm).toLowerCase())
+  );
+
+  // Clear the search
+  const [displaySearch, setDisplaySearch] = useState(false);
+
   return (
     <div>
-      <h4 className="card-title text-body">Triệu chứng đã có:</h4>
-      <div className="row pt-3 pb-3">
-        {dbSymps.map((symptom) => {
+      <div className="w-100">
+        <h5 className="card-title text-body mb-4">Triệu chứng đã có:</h5>
+        <SearchBarSymp
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          displaySearch={displaySearch}
+          setDisplaySearch={setDisplaySearch}
+          filteredSymps={filteredSymps}
+          onCheck={onCheck}
+          chosenSymps={disease.symptomsIds}
+        />
+      </div>
+      <div className="d-flex flex-wrap pt-3 pb-3">
+        {filteredSymps.map((symptom) => {
           return (
             <Symptom
               symptom={symptom}
@@ -53,6 +79,27 @@ export default function DiseaseSymps({ disease, setDisease, dbSymps, mode }) {
             />
           );
         })}
+      </div>
+      <div>
+        <h5>Các triệu chứng đã chọn:</h5>
+        {disease.symptomIds.length > 0 && (
+          <div className="ad-chosen-symp">
+            {disease.symptomIds.map((id) => {
+              const symptom = dbSymps.find((symptom) => symptom.id === id);
+              return symptom ? (
+                <div
+                  key={id}
+                  className="d-flex border-bottom border-secondary-subtle mb-3"
+                >
+                  <p>{symptom.name}</p>
+                  <button className="ms-auto" onClick={() => onCheck(id)}>
+                    <i className="bi bi-trash3-fill"></i>
+                  </button>
+                </div>
+              ) : null;
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

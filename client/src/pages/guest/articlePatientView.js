@@ -39,7 +39,7 @@ export default function ArticlePatientView({ userRole, userInfos }) {
     const elemDetail = element.detail;
     return (
       <div>
-        <h5>{elemAbout}:</h5>
+        <h6>{elemAbout}:</h6>
         <p>{elemOverview}</p>
         {element.image && (
           <img alt={element.image} src={element.image} className="w-100 p-5" />

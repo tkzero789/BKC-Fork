@@ -40,7 +40,7 @@ const SearchBarSymp = ({
             onClick={(e) => {
               e.preventDefault();
               setDisplaySearch(false);
-              window.scrollTo({ top: 500, left: 0 });
+              setSearchTerm("");
             }}
           >
             <i className="bi bi-x-lg"></i>

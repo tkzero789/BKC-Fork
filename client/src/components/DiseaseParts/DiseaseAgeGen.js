@@ -62,30 +62,36 @@ const DiseaseAgeGen = ({ disease, setDisease }) => {
     <div>
       <div className="pb-5 text-center">
         <h4 className="text-blue-1 fw-med">
-          CHỌN ĐỘ TUỔI VÀ GIỚI TÍNH CÓ THỂ MẮC PHẢI
+          Chọn độ tuổi và giới tính có thể mắc phải
         </h4>
       </div>
       <div className="px-5">
         <div className="form-group row pb-5">
-          <h5 className="col-2 fw-med text-blue-2">Độ tuổi</h5>
+          <h5 className="col-2 fw-med">Độ tuổi</h5>
           <div className="col-3">
-            <Dropdown className=" col-12" autoClose={true}>
+            <Dropdown className=" col-12" autoClose="outside">
               <Dropdown.Toggle className="form-select blue-border-1 col-12 fw-reg">
                 Độ tuổi
               </Dropdown.Toggle>
-              <Dropdown.Menu>
+              <Dropdown.Menu className="w-100">
                 {ageRanges.map((ageRange) => (
-                  <Dropdown.Item>
+                  <div
+                    className="px-3 py-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <label className="text-blue-1">
                       <input
                         type="checkbox"
-                        style={{ marginRight: "5px" }}
                         checked={chosenAges.includes(ageRange)}
                         onChange={() => checkAgeRangeField(ageRange)}
+                        disabled={
+                          chosenAges.includes("Mọi độ tuổi") &&
+                          ageRange !== "Mọi độ tuổi"
+                        }
                       />
-                      {ageRange}
+                      <span className="ps-2">{ageRange}</span>
                     </label>
-                  </Dropdown.Item>
+                  </div>
                 ))}
               </Dropdown.Menu>
             </Dropdown>
@@ -94,23 +100,29 @@ const DiseaseAgeGen = ({ disease, setDisease }) => {
         <div className="form-group row pb-5">
           <h5 className="col-2 fw-med text-blue-2">Giới tính</h5>
           <div className="col-3">
-            <Dropdown className=" col-12" autoClose={true}>
+            <Dropdown className=" col-12" autoClose="outside">
               <Dropdown.Toggle className="form-select blue-border-1 col-12 fw-reg">
                 Giới tính
               </Dropdown.Toggle>
-              <Dropdown.Menu>
+              <Dropdown.Menu className="w-100">
                 {genders.map((gender) => (
-                  <Dropdown.Item>
+                  <div
+                    className="px-3 py-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <label className="text-blue-1">
                       <input
                         type="checkbox"
-                        style={{ marginRight: "5px" }}
                         checked={chosenGens.includes(gender)}
                         onChange={() => checkGenderField(gender)}
+                        disabled={
+                          chosenGens.includes("Cả nam và nữ") &&
+                          gender !== "Cả nam và nữ"
+                        }
                       />
-                      {gender}
+                      <span className="ps-2">{gender}</span>
                     </label>
-                  </Dropdown.Item>
+                  </div>
                 ))}
               </Dropdown.Menu>
             </Dropdown>

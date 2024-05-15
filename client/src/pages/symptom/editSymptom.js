@@ -314,7 +314,7 @@ export default function EditSymptom({ userRole, userInfos }) {
                     confirmCancle(e);
                   }}
                 >
-                  HỦY CHỈNH SỬA
+                  Huỷ chỉnh sửa
                 </button>
               </div>
               <div className="col-3 d-grid gap-2">
@@ -331,7 +331,7 @@ export default function EditSymptom({ userRole, userInfos }) {
                         }
                   }
                 >
-                  XÁC NHẬN CHỈNH SỬA
+                  Xác nhận chỉnh sửa
                 </button>
               </div>
             </div>

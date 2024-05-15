@@ -5,6 +5,8 @@ import "react-calendar/dist/Calendar.css";
 import "../../css/calendar.css";
 import ApptIMG from "../../assets/appt/apptReq.jpg";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import ApptSuccessMsg from "./ApptSuccessMsg";
 
 export default function ApptForm({
   appt,
@@ -203,7 +205,7 @@ export default function ApptForm({
               <div className="appt-title-text">Đăng ký khám bệnh</div>
             </div>
             <form className="appt-form">
-              <div className="c-4 m-12">
+              <div className="c-4 md-12">
                 {/* Name */}
                 <div className="name-form">
                   <label htmlFor="name">
@@ -254,7 +256,7 @@ export default function ApptForm({
                   />
                 </div>
               </div>
-              <div className="c-4 m-12">
+              <div className="c-4 md-12">
                 {/* DOB */}
                 <div className="dob-form">
                   <label htmlFor="dob">
@@ -369,7 +371,7 @@ export default function ApptForm({
                   </select>
                 </div>
               </div>
-              <div className="c-4 m-12">
+              <div className="c-4 md-12">
                 {/* Appt Date */}
                 <div className="appt-date">
                   <label htmlFor="appt-date">Đặt lịch khám</label>
@@ -529,9 +531,12 @@ export default function ApptForm({
                   <hr style={{ marginTop: "3rem" }} />
                   <div className="attention-text">
                     <p>
-                      Tổng đài BKCare sẽ liên hệ Quý khách trong thời gian sớm
-                      nhất để xác nhận lịch hẹn. Cảm ơn Quý khách đã lựa chọn
-                      dịch vụ của BKCare.
+                      Bằng cách chọn <strong>“Đăng ký khám“</strong>, tôi xác
+                      nhận đã đọc và đồng ý với các{" "}
+                      <Link style={{ textDecoration: "none" }}>
+                        Chính sách và Điều khoản sử dụng
+                      </Link>{" "}
+                      của dịch vụ.
                     </p>
                   </div>
                   <div className="appt-modal-btn">
