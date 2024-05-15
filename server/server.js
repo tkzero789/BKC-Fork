@@ -1,15 +1,10 @@
 const express = require("express");
-const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const session = require("cookie-session");
 require("dotenv").config({ path: "./config.env" });
 const port = process.env.PORT || 5000;
 const app = express();
-app.use(express.static(path.join(__dirname, "client/public")));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname + "/client/public/index.html"));
-});
 app.use(
   cors({ origin: "https://symptom-checker-with-mern-frontend.onrender.com" })
 );

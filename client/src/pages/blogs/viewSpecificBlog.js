@@ -70,7 +70,6 @@ const ViewSpecificBlog = () => {
                     to={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
                       window.location.href
                     )}`}
-                    target="_blank"
                     rel="noopener noreferrer"
                   >
                     <i className="bi bi-facebook"></i>

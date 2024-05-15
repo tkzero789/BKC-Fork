@@ -153,7 +153,6 @@ const PatientFormResult = ({ patientResult }) => {
         {PartDisplay(article)}
         <Link
           to={`/articles/${article.id}`}
-          target="_blank"
           className="pt-1 fw-reg d-flex justify-content-end"
         >
           Xem chi tiết
