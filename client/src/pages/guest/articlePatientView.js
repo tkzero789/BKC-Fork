@@ -66,18 +66,18 @@ export default function ArticlePatientView({ userRole, userInfos }) {
           <h3 className="text-center">{article.title}</h3>
           <div className="symp-checker-steps">
             <h2>Thông tin căn bệnh</h2>
-            {article?.infos.map((info) => (
+            {article.infos?.map((info) => (
               <ArticleContent element={info} key={info.id} />
             ))}
             <h2>Phương pháp điều trị</h2>
-            {article?.treatments.map((trm) => (
+            {article.treatments?.map((trm) => (
               <ArticleContent element={trm} key={trm.id} />
             ))}
             <hr></hr>
             <div className="row">
               <p className="d-flex justify-content-end">
                 Bài viết được cung cấp bởi BS{" "}
-                {article?.createInfos.doctorCreated}
+                {article.createInfos?.doctorCreated}
               </p>
               {userRole && (
                 <div className="col-6 d-grid gap-2 justify-content-start">
