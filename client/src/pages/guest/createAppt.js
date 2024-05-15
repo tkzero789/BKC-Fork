@@ -23,7 +23,6 @@ export default function CreateAppt() {
   });
   const [otp, setOtp] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate();
 
   async function sendOTP(e) {
     e.preventDefault();
