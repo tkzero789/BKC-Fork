@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
-  const [isProcessing, setIsProcessing] = useState(true);
-  // set disease choosing from user, it is the first disease in patientResult (sorted) initially
-  const [choosingDisease, setChoosingDisease] = useState({});
+const PatientFormResult = ({ patientResult }) => {
   // get all articles form DB related to patient diseases
   const [articles, setArticles] = useState([]);
   // get all articles form DB related to choosingDisease
@@ -54,7 +51,6 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
         chooseArticle(diseaseArticles[0]);
       }
     }
-    setIsProcessing(false);
     window.scrollTo({ top: 110, left: 0, behavior: "instant" });
   }
 

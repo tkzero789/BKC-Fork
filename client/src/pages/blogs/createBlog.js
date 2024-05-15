@@ -139,7 +139,7 @@ const CreateBlog = ({ userInfos }) => {
     formData.append("image", event.target.files[0]);
     try {
       const response = await axios.post(
-        `http://localhost:5000/blog/upload`,
+        `https://symptom-checker-with-mern-stack.onrender.com/blog/upload`,
         formData,
         {
           headers: {
