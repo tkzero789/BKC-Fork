@@ -1,5 +1,5 @@
 import "./list.scss";
-import Sidebar from "../../components/Sidebar/Sidebar";
+import Sidebar from "../../components/Sidebar/SidebarTemp";
 import Navbar from "../../components/adminNav/AdminNav";
 
 export default function NavbarLayout({ title, children }) {

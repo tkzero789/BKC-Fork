@@ -12,7 +12,7 @@ import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import BKCLogo from "../../assets/logo/footerLogo2.svg";
 import { useAuth } from "../../AuthContext";
-import "./sidebar.scss";
+import "./sidebartemp.scss";
 
 export default function Sidebar() {
   const { logout, getUserRole } = useAuth();

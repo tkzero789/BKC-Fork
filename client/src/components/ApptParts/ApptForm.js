@@ -6,7 +6,6 @@ import "../../css/calendar.css";
 import ApptIMG from "../../assets/appt/apptReq.jpg";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import ApptSuccessMsg from "./ApptSuccessMsg";
 
 export default function ApptForm({
   appt,
@@ -150,21 +149,21 @@ export default function ApptForm({
     const inputFullName = document.getElementById("inputFullName");
     const inputEmail = document.getElementById("inputEmail");
     if (!inputFullName.checkValidity()) {
-      toast.warning("Thiếu họ và tên");
+      toast.error("Thiếu họ và tên");
     } else if (appt.phoneNumber === "") {
-      toast.warning("Số điện thoại không hợp lệ");
+      toast.error("Số điện thoại không hợp lệ");
     } else if (!inputEmail.checkValidity()) {
-      toast.warning("Email không hợp lệ");
+      toast.error("Email không hợp lệ");
     } else if (!date) {
-      toast.warning("Vui lòng chọn ngày");
+      toast.error("Vui lòng chọn ngày");
     } else if (!month || month === "00") {
-      toast.warning("Vui lòng chọn tháng");
+      toast.error("Vui lòng chọn tháng");
     } else if (!year) {
-      toast.warning("Vui lòng chọn năm");
+      toast.error("Vui lòng chọn năm");
     } else if (appt.gender === "" || appt.gender === "Chọn giới tính") {
-      toast.warning("Vui lòng chọn giới tính");
+      toast.error("Vui lòng chọn giới tính");
     } else if (appt.need === "" || appt.need === "Chọn nhu cầu") {
-      toast.warning("Vui lòng chọn Nhu cầu khám");
+      toast.error("Vui lòng chọn Nhu cầu khám");
     } else {
       displayModal();
     }
@@ -172,7 +171,6 @@ export default function ApptForm({
   // --- Validate: End ---
 
   // --- Modal: Start ---
-
   const displayModal = () => {
     setShowModal(!showModal);
   };
@@ -531,22 +529,6 @@ export default function ApptForm({
                       </>
                     ) : null}
                   </div>
-                  <div className={`appt-modal-data`}>
-                    <>
-                      <span>Nhập mã OTP gửi qua SĐT:</span>
-                      <input
-                        className="appt-input"
-                        type="text"
-                        placeholder="SMS OTP"
-                        id="otp"
-                        name="otp"
-                        value={otp}
-                        readOnly={!editMode}
-                        required
-                        onChange={(e) => setOtp(e.target.value)}
-                      />
-                    </>
-                  </div>
 
                   <hr style={{ marginTop: "3rem" }} />
                   <div className="attention-text">
@@ -563,14 +545,7 @@ export default function ApptForm({
                     <button type="button" onClick={closeModal}>
                       Quay lại
                     </button>
-                    <button type="button" onClick={sendOTP}>
-                      Nhận mã xác thực
-                    </button>
-                    <button
-                      type="button"
-                      disabled={otp.length !== 6}
-                      onClick={confirmSetAppt}
-                    >
+                    <button type="button" onClick={confirmSetAppt}>
                       Đăng ký khám
                     </button>{" "}
                   </div>

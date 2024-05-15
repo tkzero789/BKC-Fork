@@ -84,8 +84,6 @@ export default function DiseaseList({ userInfos }) {
 
   return (
     <div>
-      <DoctorNav />
-      <AdminNavBar />
       <h4 className="container text-center text-body pt-5">
         DANH SÁCH BỆNH ĐÃ TẠO
       </h4>

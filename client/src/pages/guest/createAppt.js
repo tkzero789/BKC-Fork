@@ -4,9 +4,11 @@ import { v4 as uuidv4 } from "uuid";
 import ApptForm from "../../components/ApptParts/ApptForm";
 import ApptSuccessMsg from "../../components/ApptParts/ApptSuccessMsg";
 import Footer from "../../components/ForPages/Footer";
+import ApptOtp from "../../components/ApptParts/ApptOTP";
 
 export default function CreateAppt() {
-  const [isApptSet, setIsApptSet] = useState(false);
+  const [isOtpConfirmed, setIsOtpConfirmed] = useState(false);
+  const [show, setShow] = useState(false);
 
   const [appt, setAppt] = useState({
     id: uuidv4(),
@@ -24,47 +26,17 @@ export default function CreateAppt() {
   const [otp, setOtp] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  async function sendOTP(e) {
+  function sendOTP(e) {
     e.preventDefault();
-    await axios
-      .post(
-        "https://symptom-checker-with-mern-stack.onrender.com/appointment/send-otp",
-        {
-          phoneNumber: "+84" + appt.phoneNumber.slice(-9),
-        }
-      )
-      .then((res) => {
-        window.alert("Đã gửi mã xác thực, vui lòng kiểm tra tin nhắn");
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
+    // Mock sending OTP
+    console.log("OTP sent");
+    window.alert("Đã gửi mã xác thực, vui lòng kiểm tra tin nhắn");
   }
 
-  async function confirmSetAppt(e) {
+  function confirmSetAppt(e) {
     e.preventDefault();
-    await axios
-      .post(
-        "https://symptom-checker-with-mern-stack.onrender.com/appointment/verify-otp",
-        {
-          phoneNumber: "+84" + appt.phoneNumber.slice(-9),
-          otp: otp,
-        }
-      )
-      .then((res) => {
-        if (res.data && res.data.message === "OTP expired") {
-          window.alert("Mã xác thực đã hết hiệu lực, vui lòng nhận mã khác");
-          return;
-        } else if (res.data && res.data.message === "Incorrect OTP") {
-          window.alert("Mã xác thực không chính xác, vui lòng nhập lại");
-          return;
-        }
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
+    // Mock confirming OTP
+    console.log("OTP confirmed");
     const updatedAppt = {
       ...appt,
       createdAt: new Date().toLocaleDateString("vi-VN", {
@@ -73,21 +45,8 @@ export default function CreateAppt() {
         day: "2-digit",
       }),
     };
-
-    await axios
-      .post(
-        "https://symptom-checker-with-mern-stack.onrender.com/appointment/add",
-        updatedAppt
-      )
-      .then((res) => {
-        setAppt(updatedAppt);
-        setIsApptSet(true);
-        console.log(res.data);
-      })
-      .catch((err) => {
-        const message = `Có lỗi xảy ra: ${err}`;
-        window.alert(message);
-      });
+    setAppt(updatedAppt);
+    setShow(true);
   }
 
   const closeModal = () => {
@@ -96,7 +55,7 @@ export default function CreateAppt() {
 
   return (
     <div className="appt-req-body">
-      {!isApptSet && (
+      {!isOtpConfirmed && (
         <ApptForm
           appt={appt}
           setAppt={setAppt}
@@ -111,7 +70,15 @@ export default function CreateAppt() {
         />
       )}
 
-      {isApptSet && <ApptSuccessMsg />}
+      {show && (
+        <ApptOtp
+          setIsOtpConfirmed={setIsOtpConfirmed}
+          show={show}
+          setShow={setShow}
+        />
+      )}
+
+      {isOtpConfirmed && <ApptSuccessMsg />}
 
       <Footer />
     </div>
