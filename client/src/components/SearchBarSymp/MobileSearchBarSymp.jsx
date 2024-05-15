@@ -44,6 +44,7 @@ const MobileSearchBarSymp = ({
               onClick={(e) => {
                 e.preventDefault();
                 setDisplaySearch(false);
+                setSearchTerm("");
                 toggleFunction();
               }}
             >

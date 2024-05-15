@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
-
 import DiseaseAgeGen from "../../components/DiseaseParts/DiseaseAgeGen";
 import DiseaseSymps from "../../components/DiseaseParts/DiseaseSymps";
 import DiseaseDescs from "../../components/DiseaseParts/DiseaseDescs";
@@ -242,7 +241,7 @@ export default function CreateDisease({ userRole, userInfos }) {
                     className="btn btn-outline-primary"
                     onClick={(e) => confirmCancle(e)}
                   >
-                    HỦY TẠO
+                    Huỷ tạo
                   </button>
                 ) : (
                   <button
@@ -250,7 +249,7 @@ export default function CreateDisease({ userRole, userInfos }) {
                     className="btn btn-outline-primary"
                     onClick={handlePrev}
                   >
-                    QUAY LẠI
+                    Quay lại
                   </button>
                 )}
               </div>
@@ -266,7 +265,7 @@ export default function CreateDisease({ userRole, userInfos }) {
                     }
                   }}
                 >
-                  {step === finalStep ? "XÁC NHẬN TẠO" : "TIẾP THEO"}
+                  {step === finalStep ? "Xác nhận tạo" : "Tiếp theo"}
                 </button>
               </div>
             </div>

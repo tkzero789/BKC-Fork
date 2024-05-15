@@ -224,10 +224,10 @@ export default function EditArticle({ userRole, userInfos }) {
               <div className="col-3 d-grid gap-2">
                 <button
                   type="button"
-                  className="btn btn-outline-primary"
+                  className="btn btn-outline-secondary"
                   onClick={(e) => confirmCancle(e)}
                 >
-                  HỦY CHỈNH SỬA
+                  Huỷ chỉnh sửa
                 </button>
               </div>
               <div className="col-3 d-grid gap-2">
@@ -238,7 +238,7 @@ export default function EditArticle({ userRole, userInfos }) {
                     confirmEdit(e);
                   }}
                 >
-                  XÁC NHẬN CHỈNH SỬA
+                  Xác nhận chỉnh sửa
                 </button>
               </div>
             </div>

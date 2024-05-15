@@ -8,6 +8,7 @@ export default function BlogTable({ userRole, userInfos }) {
   const [blog, setBlog] = useState([]);
   const [myBlog, setMyBlog] = useState(false);
 
+  // Fetch all blogs data
   useEffect(() => {
     axios
       .get("https://symptom-checker-with-mern-stack.onrender.com/blog")
@@ -25,6 +26,25 @@ export default function BlogTable({ userRole, userInfos }) {
       });
   }, []);
 
+  // Assign blog priority
+  const getPriority = (status) => {
+    switch (status) {
+      case "Request edit":
+        return 1;
+      case "Pending":
+        return 2;
+      case "Accepted":
+        return 3;
+      default:
+        return 4;
+    }
+  };
+
+  // Sort blogs based on status priority
+  const sortedBlogs = [...blog].sort(
+    (a, b) => getPriority(a.status) - getPriority(b.status)
+  );
+
   // Filter blogs
   const handleMyBlogClick = () => {
     setMyBlog(!myBlog);
@@ -32,8 +52,8 @@ export default function BlogTable({ userRole, userInfos }) {
 
   // Display filtered blogs
   const displayedBlogs = myBlog
-    ? blog.filter((b) => b.doctorID === userInfos.doctorID)
-    : blog;
+    ? sortedBlogs.filter((b) => b.doctorID === userInfos.doctorID)
+    : sortedBlogs;
 
   const actionColumn = [
     {
@@ -58,7 +78,6 @@ export default function BlogTable({ userRole, userInfos }) {
       field: "title",
       headerName: "Tựa đề",
       width: 400,
-      cellClassName: "cell-blog-title",
     },
     { field: "author", headerName: "Tác giả", width: 200 },
     { field: "doctorID", headerName: "Mã số bác sĩ", width: 120 },
@@ -69,10 +88,9 @@ export default function BlogTable({ userRole, userInfos }) {
       headerName: "Trạng thái",
       width: 140,
       renderCell: (params) => {
+        const status = params.row.status.replace(" ", "-");
         return (
-          <div className={`cellWithStatus ${params.row.status}`}>
-            {params.row.status}
-          </div>
+          <div className={`cellWithStatus ${status}`}>{params.row.status}</div>
         );
       },
     },
@@ -97,10 +115,19 @@ export default function BlogTable({ userRole, userInfos }) {
         className="datagrid"
         rows={displayedBlogs}
         getRowId={(row) => row._id}
+        getRowClassName={(params) =>
+          `rowWithStatus ${params.row.status.replace(" ", "-")}`
+        }
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
         checkboxSelection
+        sx={{
+          "& .MuiDataGrid-row:hover": {
+            backgroundColor: "transparent",
+            boxShadow: " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+          },
+        }}
       />
     </div>
   );

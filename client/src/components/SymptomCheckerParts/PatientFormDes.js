@@ -44,7 +44,7 @@ export default function PatientFormDes({
               {category.descriptions.map((description) => (
                 <div
                   key={description.id}
-                  className="form-group pb-3 col-4"
+                  className="form-group pb-3 col-4 md-12"
                   style={{ display: "flex" }}
                 >
                   <label className="d-flex">

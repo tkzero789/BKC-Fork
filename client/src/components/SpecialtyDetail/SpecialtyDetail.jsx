@@ -422,10 +422,10 @@ const SpecialtyDetail = () => {
       <div className="content-container">
         <h1 className="specialty-detail-header">{specialty.name}</h1>
         <div className="specialty-detail-wrapper">
-          <div className="c-7 m-12">
+          <div className="c-7 md-12">
             <p>{infoSplit}</p>
           </div>
-          <div className="c-5 m-12">
+          <div className="c-5 md-12">
             <img src={specialty.img} alt="Cardiology" />
           </div>
         </div>

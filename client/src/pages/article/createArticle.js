@@ -201,10 +201,10 @@ export default function CreateArticle({ userRole, userInfos }) {
                   <div className="col-3 d-grid gap-2">
                     <button
                       type="button"
-                      className="btn btn-outline-primary"
+                      className="btn btn-outline-secondary"
                       onClick={(e) => confirmCancle(e)}
                     >
-                      HỦY TẠO
+                      Huỷ tạo
                     </button>
                   </div>
                   <div className="col-3 d-grid gap-2">
@@ -213,7 +213,7 @@ export default function CreateArticle({ userRole, userInfos }) {
                       className="btn btn-outline-primary"
                       onClick={() => setIsPatView(true)}
                     >
-                      XEM CHẾ ĐỘ NGƯỜI DÙNG
+                      Xem chế độ người dùng
                     </button>
                   </div>
                   <div className="col-3 d-grid gap-2">
@@ -224,7 +224,7 @@ export default function CreateArticle({ userRole, userInfos }) {
                         confirmCreate(e);
                       }}
                     >
-                      XÁC NHẬN TẠO
+                      Xác nhận tạo
                     </button>
                   </div>
                 </div>

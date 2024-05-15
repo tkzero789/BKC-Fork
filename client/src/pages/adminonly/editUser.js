@@ -126,10 +126,10 @@ export default function EditUser() {
             <div className="row pt-3 pb-3 justify-content-end">
               <div className="col-3 d-grid gap-2">
                 <NavLink
-                  className="btn btn-outline-primary"
+                  className="btn btn-outline-secondary"
                   to={`/user/${userId}/view`}
                 >
-                  QUAY LẠI
+                  Quay lại
                 </NavLink>
               </div>
               <div className="col-3 d-grid gap-2">
@@ -138,7 +138,7 @@ export default function EditUser() {
                   className="btn btn-outline-primary"
                   onClick={(e) => confirmEdit(e)}
                 >
-                  XÁC NHẬN CHỈNH SỬA
+                  Xác nhận chỉnh sửa
                 </button>
               </div>
               <div className="col-3 d-grid gap-2">
@@ -149,7 +149,7 @@ export default function EditUser() {
                     disabled={user.status === "Blocked"}
                     onClick={() => updateStatus("Blocked")}
                   >
-                    CHẶN
+                    Chặn
                   </button>
                 )}
                 {user.status === "Blocked" && (
@@ -159,7 +159,7 @@ export default function EditUser() {
                     disabled={user.status === "Normal"}
                     onClick={() => updateStatus("Normal")}
                   >
-                    GỠ CHẶN
+                    Gỡ chặn
                   </button>
                 )}
               </div>
@@ -170,7 +170,7 @@ export default function EditUser() {
                   disabled={user.status === "Spam"}
                   onClick={() => confirmDelete()}
                 >
-                  XÓA
+                  Xoá
                 </button>
               </div>
             </div>

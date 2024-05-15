@@ -139,12 +139,12 @@ export default function ViewArticle({ userRole, userInfos }) {
                   <div className="col-3 d-grid gap-2">
                     <button
                       type="button"
-                      className="btn btn-outline-primary"
+                      className="btn btn-outline-secondary"
                       onClick={() => {
                         navigate(-1);
                       }}
                     >
-                      QUAY LẠI
+                      Quay lại
                     </button>
                   </div>
                   {userInfos.doctorID === article.createInfos.doctorID && (
@@ -153,7 +153,7 @@ export default function ViewArticle({ userRole, userInfos }) {
                         className="btn btn-outline-primary"
                         to={`/disease/${diseaseId}/article/${articleId}/edit`}
                       >
-                        CHỈNH SỬA BÀI VIẾT
+                        Chỉnh sửa bài viết
                       </NavLink>
                     </div>
                   )}
@@ -163,7 +163,7 @@ export default function ViewArticle({ userRole, userInfos }) {
                       className="btn btn-outline-primary"
                       onClick={() => setIsPatView(true)}
                     >
-                      XEM CHẾ ĐỘ NGƯỜI DÙNG
+                      Xem chế độ người dùng
                     </button>
                   </div>
                   {userInfos.doctorID === article.createInfos.doctorID && (
@@ -173,7 +173,7 @@ export default function ViewArticle({ userRole, userInfos }) {
                         className="btn btn-outline-danger"
                         onClick={(e) => confirmDelete(e)}
                       >
-                        XÓA BÀI VIẾT
+                        Xoá bài viết
                       </button>
                     </div>
                   )}

@@ -32,33 +32,13 @@ const MenuBar = ({ editor }) => {
         </button>
         <button
           onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 1 }).run()
+            editor.chain().focus().toggleHeading({ level: 4 }).run()
           }
           className={
-            editor.isActive("heading", { level: 1 }) ? "is-active" : ""
+            editor.isActive("heading", { level: 4 }) ? "is-active" : ""
           }
         >
-          <i className="bi bi-type-h1"></i>
-        </button>
-        <button
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
-          className={
-            editor.isActive("heading", { level: 2 }) ? "is-active" : ""
-          }
-        >
-          <i className="bi bi-type-h2"></i>
-        </button>
-        <button
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 3 }).run()
-          }
-          className={
-            editor.isActive("heading", { level: 3 }) ? "is-active" : ""
-          }
-        >
-          <i className="bi bi-type-h3"></i>
+          Tựa đề phụ
         </button>
         <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -71,12 +51,6 @@ const MenuBar = ({ editor }) => {
           className={editor.isActive("orderedList") ? "is-active" : ""}
         >
           <i className="bi bi-list-ol"></i>
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={editor.isActive("blockquote") ? "is-active" : ""}
-        >
-          <i className="bi bi-quote"></i>
         </button>
         <button
           onClick={() => editor.chain().focus().undo().run()}
@@ -101,6 +75,7 @@ const EditBlog = ({ userInfos }) => {
   const { blogId } = useParams();
 
   const [blog, setBlog] = useState(null);
+  const [userUploadedImage, setUserUploadedImage] = useState(false);
 
   const editor = useEditor({
     extensions: [StarterKit, Italic, Image],
@@ -192,13 +167,16 @@ const EditBlog = ({ userInfos }) => {
       ...prevBlog,
       image: response.data.link,
     }));
+    setUserUploadedImage(true);
   };
 
   return (
     <>
       <div className="content-container create-blog-text-editor">
         <h1>Chỉnh sửa bài blog:</h1>
-        <span>Tác giả: {userInfos.fullName}</span>
+        <span>
+          Tác giả: <span className="text-blue-1">{userInfos.fullName}</span>
+        </span>
         <div className="text-editor-title">
           <label htmlFor="title">Tựa đề:</label>
           <textarea value={blog.title} onChange={onChangeTitle} />
@@ -217,12 +195,12 @@ const EditBlog = ({ userInfos }) => {
             onChange={(e) => updateInfoImage(e)}
           />
         </div>
-        {blog.image ? (
+        {userUploadedImage ? (
           <div className="text-editor-img">
             <img src={blog.image} alt="Blog img" />
           </div>
         ) : (
-          "Chưa có ảnh nào được upload"
+          <div className="pt-2">Chưa có ảnh nào được upload</div>
         )}
         <label htmlFor="info">Info</label>
         <div className="text-editor">
@@ -232,12 +210,12 @@ const EditBlog = ({ userInfos }) => {
 
         <div className="text-editor-btn">
           <Link
-            className="btn btn-outline-secondary me-5"
+            className="btn btn-outline-secondary"
             to={`/blog/${blogId}/view`}
           >
             Quay lại
           </Link>
-          <button className="btn btn-primary" onClick={handleClick}>
+          <button className="btn btn-primary ms-auto" onClick={handleClick}>
             Xác nhận chỉnh sửa
           </button>
         </div>

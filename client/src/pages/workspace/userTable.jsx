@@ -70,7 +70,7 @@ export default function UserTable({ userRole, userInfos }) {
       <div className="datatableTitle">
         Danh sách users
         {userRole === "admin" && (
-          <NavLink to="/signup-doctor" className="add-link">
+          <NavLink to="/signup-doctor" className="add-link ms-auto">
             Thêm user
           </NavLink>
         )}
@@ -83,6 +83,12 @@ export default function UserTable({ userRole, userInfos }) {
         pageSize={10}
         rowsPerPageOptions={[10]}
         checkboxSelection
+        sx={{
+          "& .MuiDataGrid-row:hover": {
+            backgroundColor: "transparent",
+            boxShadow: " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+          },
+        }}
       />
     </div>
   );

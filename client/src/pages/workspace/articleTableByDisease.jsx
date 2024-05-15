@@ -125,7 +125,7 @@ export default function ArticleTableByDisease({ userRole, userInfos }) {
         {userRole !== "admin" && (
           <NavLink
             to={`/disease/${diseaseId}/article/create`}
-            className="add-link"
+            className="add-link ms-auto"
           >
             Thêm bài viết
           </NavLink>
@@ -140,6 +140,12 @@ export default function ArticleTableByDisease({ userRole, userInfos }) {
           pageSize={10}
           rowsPerPageOptions={[10]}
           checkboxSelection
+          sx={{
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "transparent",
+              boxShadow: " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+            },
+          }}
         />
       )}
       {userRole !== "admin" && (
@@ -151,6 +157,12 @@ export default function ArticleTableByDisease({ userRole, userInfos }) {
           pageSize={10}
           rowsPerPageOptions={[10]}
           checkboxSelection
+          sx={{
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "transparent",
+              boxShadow: " rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+            },
+          }}
         />
       )}
     </div>

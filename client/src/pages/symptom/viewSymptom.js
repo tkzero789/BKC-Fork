@@ -93,18 +93,18 @@ export default function ViewSymptom({ userRole, userInfos }) {
               <div className="col-3 d-grid gap-2">
                 <button
                   type="button"
-                  className="btn btn-outline-primary"
+                  className="btn btn-outline-secondary"
                   onClick={() => {
                     navigate(-1);
                   }}
                 >
-                  QUAY LẠI
+                  Quay lại
                 </button>
               </div>
               {(userRole === "admin" || userRole === "head-doctor") && (
                 <div className="col-3 d-grid gap-2">
                   <NavLink
-                    className="btn btn-outline-primary"
+                    className="btn btn-warning"
                     to={`/symptom/${symptomId}/edit`}
                   >
                     {userRole === "admin" ? "Chỉnh sửa" : "Thêm mô tả"}
@@ -120,7 +120,7 @@ export default function ViewSymptom({ userRole, userInfos }) {
                       confirmDelete(e);
                     }}
                   >
-                    XÓA
+                    Xoá
                   </button>
                 </div>
               )}

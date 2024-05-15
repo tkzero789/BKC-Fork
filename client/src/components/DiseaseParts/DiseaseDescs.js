@@ -25,15 +25,15 @@ export default function DiseaseDescs({
   return (
     <div className="row pt-3 pb-3">
       <div className="form-group row pb-4">
-        <h4 className="card-title text-blue-2 text-uppercase">
-          MÔ TẢ CHI TIẾT TRIỆU CHỨNG {chosenSymp.name}
+        <h4 className="card-title text-blue-2">
+          Mô tả chi tiết triệu chứng {chosenSymp.name}
         </h4>
       </div>
       {chosenSymp.categories.map((category) => {
         return (
           <div key={category.id}>
             <div className="form row pt-3 pb-3">
-              <h4 className="card-title text-blue-2 col-12 text-uppercase">
+              <h4 className="card-title text-blue-2 col-12">
                 {category.categoryName}
               </h4>
             </div>

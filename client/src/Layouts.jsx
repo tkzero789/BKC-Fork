@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import RequireAuth from "./RequireAuth";
 // staff pages
-import Dashboard from "./pages/workspace/dashboard";
 import StaffLayout from "./pages/layout/StaffLayout";
 import NotifTable from "./pages/workspace/notifTable";
 // symptom pages
@@ -65,22 +64,6 @@ export default function Layouts({ userRole, userInfos }) {
         <StaffLayout>
           {/* dashboard */}
           <Routes>
-            <Route
-              path="/dashboard"
-              element={
-                <RequireAuth
-                  userRole={userRole}
-                  allowedRoles={["head-doctor", "doctor", "admin"]}
-                >
-                  <Dashboard userRole={userRole} userInfos={userInfos} />
-                </RequireAuth>
-              }
-            />
-            {/* <Route
-              exact
-              path="/"
-              element={<Navigate to="/dashboard" replace={true} />}
-            /> */}
             <Route
               exact
               path="/"

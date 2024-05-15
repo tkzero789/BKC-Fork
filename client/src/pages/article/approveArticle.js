@@ -292,12 +292,12 @@ export default function ApproveArticle({ userRole, userInfos }) {
                   <div className="col-3 d-grid gap-2">
                     <button
                       type="button"
-                      className="btn btn-outline-primary"
+                      className="btn btn-outline-secondary"
                       onClick={() => {
                         navigate(-1);
                       }}
                     >
-                      QUAY LẠI
+                      Quay lại
                     </button>
                   </div>
                   <div className="col-3 d-grid gap-2">
@@ -306,7 +306,7 @@ export default function ApproveArticle({ userRole, userInfos }) {
                       className="btn btn-outline-primary"
                       onClick={() => setIsPatView(true)}
                     >
-                      XEM CHẾ ĐỘ NGƯỜI DÙNG
+                      Xem chế độ người dùng
                     </button>
                   </div>
                   {userRole === "head-doctor" && (
@@ -316,7 +316,7 @@ export default function ApproveArticle({ userRole, userInfos }) {
                         className="btn btn-outline-primary"
                         onClick={(e) => confirmApprove(e)}
                       >
-                        XÁC NHẬN DUYỆT
+                        Xác nhận duyệt
                       </button>
                     </div>
                   )}
@@ -328,7 +328,7 @@ export default function ApproveArticle({ userRole, userInfos }) {
                         className="btn btn-outline-danger"
                         onClick={(e) => confirmDelete(e, false)}
                       >
-                        XÁC NHẬN XÓA
+                        Xác nhận xoá
                       </button>
                     </div>
                   )}

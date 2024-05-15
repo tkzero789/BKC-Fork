@@ -573,6 +573,58 @@
   font-weight: var(--roboto-regular-weight);
 }
 
+/* Final results - Step 4 */
+.final-results .main-article {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.final-results .extra-articles {
+  padding-top: 2px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.main-article::-webkit-scrollbar {
+  width: 4px; /* Width of the scrollbar */
+}
+
+.main-article::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Color of the track */
+}
+
+.main-article::-webkit-scrollbar-thumb {
+  background: #acacac; /* Color of the scroll thumb */
+}
+
+.main-article::-webkit-scrollbar-thumb:hover {
+  background: #7e7e7e; /* Color of the scroll thumb on hover */
+}
+
+.extra-articles::-webkit-scrollbar {
+  width: 4px; /* Width of the scrollbar */
+}
+
+.extra-articles::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Color of the track */
+}
+
+.extra-articles::-webkit-scrollbar-thumb {
+  background: #acacac; /* Color of the scroll thumb */
+}
+
+.extra-articles::-webkit-scrollbar-thumb:hover {
+  background: #7e7e7e; /* Color of the scroll thumb on hover */
+}
+
+.article-btn {
+  cursor: pointer;
+}
+
+.article-btn:hover {
+  box-shadow: #1b72b498 0px 1px 2px 0px, #1b72b498 0px 2px 6px 2px;
+}
+
 /* MOBILE RESPONSIVE */
 @media only screen and (max-width: 767px) {
   /* Symptom Checker */

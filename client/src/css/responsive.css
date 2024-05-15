@@ -51,11 +51,14 @@
 
   .slider-wrapper ul {
     list-style: none;
-    padding: 20px 8px;
   }
 
   .slider-wrapper ul li {
-    padding: 12px 0 12px 8px;
+    border-bottom: 1px solid #becedd;
+  }
+
+  .mobile-nav-link {
+    padding: 16px 0 16px 24px;
   }
 
   .hero-mobile {
@@ -65,10 +68,6 @@
 
 /* Mobile phone */
 @media only screen and (max-width: 767px) {
-  .blue-bg-2 {
-    background-color: #ffffff !important;
-  }
-
   #main {
     padding-top: 72px;
   }
@@ -104,11 +103,14 @@
 
   .slider-wrapper ul {
     list-style: none;
-    padding: 20px 8px;
   }
 
   .slider-wrapper ul li {
-    padding: 12px 0 12px 8px;
+    border-bottom: 1px solid #becedd;
+  }
+
+  .mobile-nav-link {
+    padding: 16px 0 16px 24px;
   }
 
   .hero-mobile {
@@ -495,6 +497,10 @@
 
   /* Symptom Checker */
   /* Step 1 */
+  .symp-checker h3 {
+    margin-top: 80px;
+  }
+
   .symp-checker-board {
     padding: 0;
   }
@@ -532,7 +538,21 @@
   }
 
   .symp-checker-steps {
-    display: none;
+    padding: 16px 0 8px 0;
+  }
+
+  .symp-checker-steps h2 {
+    font-size: 20px;
+    padding: 8px 0 4px 0;
+  }
+
+  .symp-checker-steps h6 {
+    font-size: 18px;
+    padding: 12px 0 4px 0;
+  }
+
+  .symp-checker-steps p {
+    padding: 2px 0;
   }
 
   .progress-bar-step {
@@ -584,6 +604,31 @@
     display: none;
   }
 
+  /* Step 4 */
+  .final-results {
+    flex-direction: column-reverse;
+  }
+
+  .final-results .extra-articles {
+    overflow-y: auto;
+    max-height: 300px;
+  }
+
+  .final-results .main-article {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .main-article .d-flex .c-6 button {
+    font-size: 14px;
+    padding: 8px 4px;
+    width: 95% !important;
+  }
+
+  .steps-next-button a {
+    width: 100%;
+  }
+
   /* Specialty Page */
   .breadcrumbs {
     margin-top: 58px !important;
@@ -618,7 +663,7 @@
     flex-direction: column;
   }
 
-  .specialty-detail-wrapper .m-12 > p {
+  .specialty-detail-wrapper .md-12 > p {
     font-size: 16px;
     line-height: 1.5;
     padding: 0;
@@ -641,5 +686,85 @@
 
   .specilty-detail-info ul li:not(:last-child) {
     padding-bottom: 8px;
+  }
+
+  /* Blogs/News */
+  .blog-list h1 {
+    font-size: 28px;
+    padding: 24px 0 24px;
+  }
+
+  .blog-list-items {
+    width: 100%;
+  }
+
+  .blog-list-item {
+    flex-direction: column;
+  }
+
+  .blog-link-and-intro {
+    display: none;
+  }
+
+  .blog-thumbnail-img {
+    display: none;
+  }
+
+  .mobile-blog-link {
+    display: block !important;
+    line-height: 1.2;
+    padding-bottom: 16px;
+  }
+
+  .mobile-blog-link a {
+    text-decoration: none;
+    color: var(--text-dark-header);
+    font-size: 20px;
+    font-weight: var(--roboto-medium-weight);
+  }
+
+  .mobile-blog-img-and-intro {
+    display: block !important;
+  }
+
+  .mobile-blog-thumbnail-img {
+    max-width: 40%;
+    display: inline-block;
+  }
+
+  .mobile-blog-thumbnail-img img {
+    width: 100%;
+    border-radius: 6px;
+  }
+
+  .mobile-blog-intro {
+    padding-left: 8px;
+  }
+
+  .mobile-blog-intro span {
+    font-size: 14px;
+    color: var(--text-dark-sub);
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+  }
+
+  .individual-blog {
+    padding-top: 28px;
+  }
+
+  .individual-blog h4 {
+    display: block;
+  }
+
+  .individual-blog .blog-img {
+    padding: 18px 0 24px 0;
+  }
+
+  .individual-blog .blog-img img {
+    width: 90%;
   }
 }

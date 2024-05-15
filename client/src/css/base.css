@@ -14,6 +14,7 @@
   --text-white: #ffffff;
   --text-dark-header: #313131;
   --text-dark-sub: #555555;
+  --text-dark-body: #222222;
   --text-blue: #006298;
   --header-color: #286ba6;
   --sub-header-color: #002c77;
@@ -53,6 +54,14 @@
   color: var(--sub-header-color);
 }
 
+.text-black-2 {
+  color: var(--text-dark-header);
+}
+
+.text-secondary-1 {
+  color: var(--text-dark-sub);
+}
+
 /* Font (weight, size) */
 .fw-reg {
   font-weight: var(--roboto-regular-weight);
@@ -60,6 +69,14 @@
 
 .fw-med {
   font-weight: var(--roboto-medium-weight);
+}
+
+.fs-12 {
+  font-size: 12px;
+}
+
+.fs-14 {
+  font-size: 14px;
 }
 
 .fs-18 {
@@ -81,8 +98,16 @@
   background-color: var(--blue-bg-1);
 }
 
+.blue-bg-2 {
+  background-color: aliceblue;
+}
+
 .body-bg-2 {
   background-color: #ffffff;
+}
+
+.secondary-bg-1 {
+  background-color: #ebebeb;
 }
 
 /* Border */
@@ -91,8 +116,8 @@
 }
 
 .box-shadow-1 {
-  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px,
-    rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
   border-radius: 6px;
 }
 
@@ -298,77 +323,77 @@ li {
     display: none;
   }
 
-  .m-1,
-  .m-2,
-  .m-3,
-  .m-4,
-  .m-5,
-  .m-6,
-  .m-7,
-  .m-8,
-  .m-9,
-  .m-10,
-  .m-11,
-  .m-12 {
+  .md-1,
+  .md-2,
+  .md-3,
+  .md-4,
+  .md-5,
+  .md-6,
+  .md-7,
+  .md-8,
+  .md-9,
+  .md-10,
+  .md-11,
+  .md-12 {
     display: block;
   }
 
-  .m-1 {
+  .md-1 {
     flex: 0 0 8.33333%;
     max-width: 8.33333%;
   }
 
-  .m-2 {
+  .md-2 {
     flex: 0 0 16.66667%;
     max-width: 16.66667%;
   }
 
-  .m-3 {
+  .md-3 {
     flex: 0 0 25%;
     max-width: 25%;
   }
 
-  .m-4 {
+  .md-4 {
     flex: 0 0 33.33333%;
     max-width: 33.33333%;
   }
 
-  .m-5 {
+  .md-5 {
     flex: 0 0 41.66667%;
     max-width: 41.66667%;
   }
 
-  .m-6 {
+  .md-6 {
     flex: 0 0 50%;
     max-width: 50%;
   }
 
-  .m-7 {
+  .md-7 {
     flex: 0 0 58.33333%;
     max-width: 58.33333%;
   }
 
-  .m-8 {
+  .md-8 {
     flex: 0 0 66.66667%;
     max-width: 66.66667%;
   }
 
-  .m-9 {
+  .md-9 {
     flex: 0 0 75%;
     max-width: 75%;
   }
 
-  .m-10 {
+  .md-10 {
     flex: 0 0 83.33333%;
     max-width: 83.33333%;
   }
 
-  .m-11 {
+  .md-11 {
     flex: 0 0 91.66667%;
     max-width: 91.66667%;
   }
 
-  .m-12 {
+  .md-12 {
     flex: 0 0 100%;
     max-width: 100%;
   }

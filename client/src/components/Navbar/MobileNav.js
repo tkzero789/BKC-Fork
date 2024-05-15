@@ -6,12 +6,20 @@ export default function MobileNav() {
   const location = useLocation();
 
   const handleLinkClick = (event) => {
+    event.preventDefault();
     const { to } = event.currentTarget.dataset;
     if (location.pathname === to) {
       event.preventDefault();
       window.location.reload();
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
+    // Close the mobile navigation menu
+    menuBtn.current.classList.remove("open");
+
+    // Add a delay before navigating
+    setTimeout(() => {
+      window.location.href = to;
+    }, 100);
   };
 
   const menuBtn = useRef(null);
@@ -50,16 +58,6 @@ export default function MobileNav() {
                 <li>
                   <NavLink
                     className="mobile-nav-link"
-                    to="/appt-request"
-                    data-to="/appt-request"
-                    onClick={handleLinkClick}
-                  >
-                    Thông tin
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    className="mobile-nav-link"
                     to="/specialty-page"
                     data-to="/specialty-page"
                     onClick={handleLinkClick}
@@ -84,7 +82,27 @@ export default function MobileNav() {
                     data-to="/symptom-checker"
                     onClick={handleLinkClick}
                   >
-                    Chẩn đoán - Xem kết quả online
+                    Chẩn đoán sức khoẻ trực tuyến
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    className="mobile-nav-link"
+                    to="/view-blog-list"
+                    data-to="/view-blog-list"
+                    onClick={handleLinkClick}
+                  >
+                    Tin tức - Y học thường thức
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    className="mobile-nav-link"
+                    to="/work-schedule"
+                    data-to="/work-schedule"
+                    onClick={handleLinkClick}
+                  >
+                    Lịch làm việc
                   </NavLink>
                 </li>
               </ul>

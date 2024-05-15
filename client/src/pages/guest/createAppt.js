@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-
 import ApptForm from "../../components/ApptParts/ApptForm";
+import ApptSuccessMsg from "../../components/ApptParts/ApptSuccessMsg";
 import Footer from "../../components/ForPages/Footer";
 
 export default function CreateAppt() {
+  const [isApptSet, setIsApptSet] = useState(false);
+
   const [appt, setAppt] = useState({
     id: uuidv4(),
     fullName: "",
@@ -80,19 +81,9 @@ export default function CreateAppt() {
         updatedAppt
       )
       .then((res) => {
-        console.log("Appointment set", res.data);
-        setAppt({
-          fullName: "",
-          phoneNumber: "",
-          email: "",
-          dob: "",
-          gender: "",
-          need: "",
-          date: "",
-          reason: "",
-          createdAt: null,
-        });
-        navigate("/");
+        setAppt(updatedAppt);
+        setIsApptSet(true);
+        console.log(res.data);
       })
       .catch((err) => {
         const message = `Có lỗi xảy ra: ${err}`;
@@ -106,18 +97,23 @@ export default function CreateAppt() {
 
   return (
     <div className="appt-req-body">
-      <ApptForm
-        appt={appt}
-        setAppt={setAppt}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        editMode={true}
-        closeModal={closeModal}
-        confirmSetAppt={confirmSetAppt}
-        otp={otp}
-        setOtp={setOtp}
-        sendOTP={sendOTP}
-      />
+      {!isApptSet && (
+        <ApptForm
+          appt={appt}
+          setAppt={setAppt}
+          showModal={showModal}
+          setShowModal={setShowModal}
+          editMode={true}
+          closeModal={closeModal}
+          confirmSetAppt={confirmSetAppt}
+          otp={otp}
+          setOtp={setOtp}
+          sendOTP={sendOTP}
+        />
+      )}
+
+      {isApptSet && <ApptSuccessMsg />}
+
       <Footer />
     </div>
   );

@@ -31,6 +31,16 @@ const MenuBar = ({ editor }) => {
           <i className="bi bi-type-italic"></i>
         </button>
         <button
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 4 }).run()
+          }
+          className={
+            editor.isActive("heading", { level: 4 }) ? "is-active" : ""
+          }
+        >
+          Tựa đề phụ
+        </button>
+        <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={editor.isActive("bulletList") ? "is-active" : ""}
         >
@@ -127,33 +137,44 @@ const CreateBlog = ({ userInfos }) => {
   const updateInfoImage = async (event) => {
     const formData = new FormData();
     formData.append("image", event.target.files[0]);
-    const response = await axios.post(
-      `https://symptom-checker-with-mern-stack.onrender.com/blog/upload`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    setBlog((prevBlog) => ({
-      ...prevBlog,
-      image: response.data.link,
-    }));
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/blog/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response.data); // Log the response data to check if the image is uploaded correctly
+      setBlog((prevBlog) => ({
+        ...prevBlog,
+        image: response.data.link, // Ensure that the server is returning the correct URL for the image
+      }));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <>
       <div className="content-container create-blog-text-editor">
         <h1>Tạo bài blog/ tin tức mới</h1>
-        <span>Tác giả: {userInfos.fullName}</span>
+        <span>
+          Tác giả: <span className="text-blue-1">{userInfos.fullName}</span>
+        </span>
         <div className="text-editor-title">
           <label htmlFor="title">Tựa đề:</label>
           <textarea value={blog.title} onChange={onChangeTitle} />
         </div>
         <div className="text-editor-intro">
           <label htmlFor="intro">Đoạn mở đầu:</label>
-          <textarea value={blog.intro} onChange={onChangeIntro} />
+          <textarea
+            className="intro-textarea"
+            value={blog.intro}
+            onChange={onChangeIntro}
+          />
         </div>
         <div className="text-editor-img">
           <label htmlFor="image">Ảnh bài blog:</label>
@@ -179,7 +200,7 @@ const CreateBlog = ({ userInfos }) => {
         </div>
 
         <div className="text-editor-btn">
-          <button className="btn btn-primary" onClick={handleClick}>
+          <button className="btn btn-primary ms-auto" onClick={handleClick}>
             Xác nhận tạo
           </button>
         </div>

@@ -8,6 +8,7 @@ import axios from "axios";
 import { Toaster, toast } from "sonner";
 import Footer from "../../components/ForPages/Footer";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import SympCheckerModal from "../../components/SymptomCheckerParts/SympCheckerModal";
 
 export default function SymptomChecker() {
   const [patientForm, setPatientForm] = useState({
@@ -111,7 +112,7 @@ export default function SymptomChecker() {
   const handleNext = () => {
     setPrevStep(step);
     setStep((step) => step + 1);
-    window.scrollTo({ top: 100, left: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   };
 
   const checkHandleNext = () => {
@@ -210,7 +211,7 @@ export default function SymptomChecker() {
   const handlePrev = () => {
     setPrevStep(step);
     setStep((step) => step - 1);
-    window.scrollTo({ top: 100, left: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   };
 
   const StepName = (props) => {
@@ -260,11 +261,10 @@ export default function SymptomChecker() {
           <title>Phòng khám online</title>
         </Helmet>
       </HelmetProvider>
+      {step === 1 && <SympCheckerModal />}
       <div className="symp-checker w-100">
         <div className="content-container">
-          <h3 className="text-center">
-            CHÀO MỪNG BẠN ĐẾN VỚI TÍNH NĂNG GỢI Ý CHẨN ĐOÁN BỆNH
-          </h3>
+          <h3 className="text-center">Chẩn đoán bệnh trực tuyến</h3>
           <div className="symp-checker-board">
             <div className="card">
               <div className="progress-bar-step border rounded">

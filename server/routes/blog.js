@@ -2,28 +2,32 @@ const express = require("express");
 const blogRoutes = express.Router();
 const dbo = require("../db/conn");
 const multer = require("multer");
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + file.originalname);
+const { Upload } = require("@aws-sdk/lib-storage");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const stream = require("stream");
+require("dotenv").config({ path: "../.config.env" });
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
-const fileFilter = function (req, file, cb) {
-  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
 
-// set up multer to upload image
+function fileFilter(req, file, cb) {
+  // Accept images only
+  if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
+    req.fileValidationError = "Only image files are allowed!";
+    return cb(new Error("Only image files are allowed!"), false);
+  }
+  cb(null, true);
+}
+
+const s3Storage = multer.memoryStorage();
 const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
+  storage: s3Storage,
+  limits: { fileSize: 1024 * 1024 * 5 }, // limit size
   fileFilter: fileFilter,
 });
 
@@ -69,11 +73,26 @@ blogRoutes
       if (!uploadedImage) {
         throw new Error("No image uploaded");
       }
+
+      const uploadParams = {
+        Bucket: "mybkcarebucket",
+        Key: Date.now().toString() + "-" + uploadedImage.originalname,
+        Body: stream.Readable.from(uploadedImage.buffer),
+        ACL: "public-read",
+      };
+
+      const uploader = new Upload({
+        client: s3,
+        params: uploadParams,
+      });
+
+      await uploader.done();
+
       res.json({
-        link: `https://symptom-checker-with-mern-stack.onrender.com/uploads/${uploadedImage.filename}`,
+        link: `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`, // this is the S3 URL of the uploaded image
       });
     } catch (err) {
-      throw err;
+      res.status(500).send(err);
     }
   });
 

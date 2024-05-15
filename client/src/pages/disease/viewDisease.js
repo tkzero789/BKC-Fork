@@ -97,12 +97,12 @@ export default function ViewDisease({ userRole, userInfos }) {
               <div className="col-3 d-grid gap-2">
                 <button
                   type="button"
-                  className="btn btn-outline-primary"
+                  className="btn btn-outline-secondary"
                   onClick={() => {
                     navigate(-1);
                   }}
                 >
-                  QUAY LẠI
+                  Quay lại
                 </button>
               </div>
               <div className="col-3 d-grid gap-2">
@@ -110,7 +110,7 @@ export default function ViewDisease({ userRole, userInfos }) {
                   className="btn btn-outline-primary"
                   to={`/disease/${diseaseId}/article-table`}
                 >
-                  DANH SÁCH BÀI VIẾT
+                  Danh sách bài viết
                 </NavLink>
               </div>
               {userInfos.doctorID === disease.createInfos.doctorID && (
@@ -119,7 +119,7 @@ export default function ViewDisease({ userRole, userInfos }) {
                     className="btn btn-outline-primary"
                     to={`/disease/${diseaseId}/edit`}
                   >
-                    CHỈNH SỬA
+                    Chỉnh sửa
                   </NavLink>
                 </div>
               )}
@@ -131,7 +131,7 @@ export default function ViewDisease({ userRole, userInfos }) {
                     className="btn btn-outline-danger"
                     onClick={() => confirmDelete(diseaseId)}
                   >
-                    XÓA CĂN BỆNH
+                    Xoá căn bệnh
                   </button>
                 </div>
               )}

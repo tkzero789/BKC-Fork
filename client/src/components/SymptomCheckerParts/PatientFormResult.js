@@ -55,24 +55,22 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
       }
     }
     setIsProcessing(false);
+    window.scrollTo({ top: 110, left: 0, behavior: "instant" });
   }
 
   function chooseArticle(article) {
     setChoosingArticle(article);
+    window.scrollTo({ top: 110, left: 0, behavior: "instant" });
   }
 
   function SuitDiseases({ disease }) {
     return (
       <div
-        className="button col-12 mb-3 p-3 box-shadow-1"
+        className="article-btn button text-start border-0 col-12 mb-3 p-3 box-shadow-1 blue-bg-2"
         onClick={() => chooseDisease(disease)}
       >
-        <h5 className="fw-med text-blue-2" style={{ marginBottom: "1px" }}>
-          {disease.name}
-        </h5>
-        <h6 className="fw-med text-blue-2" style={{ marginBottom: "1px" }}>
-          Chuyên khoa: {disease.medSpecialty}
-        </h6>
+        <h5 className="fw-med text-blue-2 pb-md-2 pb-1">{disease.name}</h5>
+        <h6 className="fw-reg pb-sm-1">Chuyên khoa: {disease.medSpecialty}</h6>
       </div>
     );
   }
@@ -86,21 +84,25 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
 
   function SwitchPartButton() {
     return (
-      <div className="row pb-3">
-        <div className="col-6 d-grid gap-2">
+      <div className="d-flex pb-3">
+        <div className="c-6 text-center">
           <button
             type="button"
-            className="btn btn-outline-primary"
+            className={`btn w-75 ${
+              part === 1 ? "btn-outline-primary" : "btn-primary w-75"
+            }`}
             disabled={part === 1}
             onClick={handlePrev}
           >
             Thông tin chi tiết
           </button>
         </div>
-        <div className="col-6 d-grid gap-2">
+        <div className="c-6 text-center">
           <button
             type="button"
-            className="btn btn-outline-primary"
+            className={`btn w-75 ${
+              part === 2 ? "btn-outline-primary" : "btn-primary w-75"
+            }`}
             disabled={part === 2}
             onClick={handleNext}
           >
@@ -120,10 +122,8 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
             const overview = info.overview;
             return (
               <div>
-                <h5>{about}</h5>
-                <br></br>
-                <p>{overview}</p>
-                <br></br>
+                <h5 className="pb-md-2 pb-1 text-black-2">{about}</h5>
+                <p className="pb-md-2 pb-1 text-secondary-1">{overview}</p>
               </div>
             );
           })}
@@ -137,10 +137,8 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
             const overview = trm.overview;
             return (
               <div>
-                <h5>{about}</h5>
-                <br></br>
-                <p>{overview}</p>
-                <br></br>
+                <h5 className="pb-md-2 pb-1">{about}</h5>
+                <p className="pb-md-2 pb-1">{overview}</p>
               </div>
             );
           })}
@@ -151,11 +149,8 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
 
   function DisplayedArticle({ article }) {
     return (
-      <div className="col-12 mb-3 p-3 box-shadow-1">
-        <h5
-          className="fw-med text-blue-2 d-flex justify-content-center pb-3"
-          style={{ marginBottom: "1px" }}
-        >
+      <div className="main-article c-12 mb-3 p-3 box-shadow-1">
+        <h5 className="fw-med text-blue-2 d-flex justify-content-center pb-3">
           {article.title}
         </h5>
         {SwitchPartButton()}
@@ -164,7 +159,6 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
           to={`/articles/${article.id}`}
           target="_blank"
           className="pt-1 fw-reg d-flex justify-content-end"
-          style={{ marginBottom: "1px" }}
         >
           Xem chi tiết
         </Link>
@@ -175,31 +169,16 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
   function OtherArticle({ article }) {
     return (
       <div
-        className="button col-12 mb-3 p-3 box-shadow-1"
+        className="article-btn button border-0 text-start w-100 c-12 mb-3 p-3 box-shadow-1 blue-bg-2"
         onClick={() => chooseArticle(article)}
       >
-        <h5 className="fw-med text-blue-2" style={{ marginBottom: "1px" }}>
-          {article.title}
-        </h5>
-        <h6 className="fw-med text-blue-2" style={{ marginBottom: "1px" }}>
+        <h5 className="fw-med text-blue-2 pb-md-2 pb-1">{article.title}</h5>
+        <h6 className="fw-reg">
           Viết bởi BS {article.createInfos.doctorCreated}
         </h6>
       </div>
     );
   }
-
-  // function updateStarField(newRating) {
-  //   setFeedback({ ...feedback, stars: newRating });
-  // }
-
-  // function updateCmtField(event) {
-  //   setFeedback({ ...feedback, comment: event.target.value });
-  // }
-
-  // function submitFeedback(e) {
-  //   e.preventDefault();
-  //   setFeedback({ ...feedback, isSent: true });
-  // }
 
   return (
     <div>
@@ -207,14 +186,14 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
         <h4>Kết quả gợi ý chẩn đoán dựa trên thông tin bạn cung cấp</h4>
       </div>
 
-      <div className="row pt-3 pb-3">
-        <div className="col-4">
+      <div className="final-results row pt-3 pb-3">
+        <div className="extra-articles c-4 md-12">
           {patientResult.map((disease) => (
             <SuitDiseases disease={disease} key={disease.id} />
           ))}
         </div>
-        <div className="col-8 row">
-          <div className="col-12">
+        <div className="c-8 md-12">
+          <div className="c-12">
             {diseaseArticles.length > 0 && (
               <DisplayedArticle
                 article={choosingArticle}
@@ -227,42 +206,6 @@ const PatientFormResult = ({ patientResult, feedback, setFeedback }) => {
                 .map((article) => (
                   <OtherArticle article={article} key={article.id} />
                 ))}
-
-            {/* <div className="col-12 mb-3 p-3 box-shadow-1">
-                <h4
-                  className="fw-med text-blue-2 d-flex justify-content-center pb-3"
-                  style={{ marginBottom: "1px" }}
-                >
-                  Chức năng này có hữu ích không?
-                </h4>
-                <div className="row">
-                  <div className="d-flex col">
-                    {[...Array(5)].map((_, index) => (
-                      <span
-                        className="mr-5 pe-auto "
-                        key={index}
-                        onClick={() => updateStarField(index + 1)}
-                      >
-                        {feedback.stars >= index + 1 ? "★" : "☆"}
-                      </span>
-                    ))}
-                  </div>
-                  <textarea
-                    className="form-control border-primary-subtle col-12"
-                    value={feedback.comment}
-                    rows={3}
-                    onChange={(e) => updateCmtField(e)}
-                    placeholder="Ý kiến của bạn"
-                  />
-                  <button
-                    className="btn btn-outline-primary col-12 mt-3"
-                    disabled={feedback.isSent}
-                    onClick={(e) => submitFeedback(e)}
-                  >
-                    Gửi feedback
-                  </button>
-                </div>
-              </div> */}
           </div>
         </div>
       </div>
