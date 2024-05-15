@@ -254,12 +254,6 @@ export default function Layouts({ userRole, userInfos }) {
                 </RequireAuth>
               }
             />
-            <Route
-              path="/articles/:articleId"
-              element={
-                <ArticlePatientView userRole={userRole} userInfos={userInfos} />
-              }
-            />
             {/* appointment pages */}
             <Route
               path="/appointment-table"
@@ -351,7 +345,7 @@ export default function Layouts({ userRole, userInfos }) {
             <Route path="/symptom-checker" element={<SymptomChecker />} />
             <Route
               path="/articles/:articleId"
-              element={<ArticlePatientView userInfos={userInfos} />}
+              element={<ArticlePatientView />}
             />
             <Route
               exact
